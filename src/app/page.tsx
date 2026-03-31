@@ -141,14 +141,21 @@ export default function Home() {
     <div className="min-h-screen p-8 bg-[#fdf6e3] text-[#433422] font-sans selection:bg-amber-500/30">
       <div className="max-w-7xl mx-auto mb-16">
         {/* Header */}
-        <div className="flex justify-between items-end mb-16 flex-wrap gap-10">
-          <div>
-            <h1 className="text-6xl font-black bg-gradient-to-r from-amber-600 via-orange-500 to-red-800 bg-clip-text text-transparent italic tracking-tighter leading-tight uppercase">Diecast Police Museum</h1>
-            <p className="text-zinc-500 mt-4 font-black tracking-[0.4em] text-[10px] uppercase">Official Archive • Master Fleet Control</p>
+        {/* Header with PNG Sign */}
+        <div className="flex flex-col items-center mb-16 gap-12 w-full">
+          <div className="w-full md:w-[800px] relative drop-shadow-2xl hover:scale-[1.02] transition-transform duration-700">
+             <Image src="/museum-sign.png" alt="Diecast Police Museum" width={1200} height={800} className="w-full h-auto rounded-[2rem] border-8 border-white/40 sepia-[0.2]" />
           </div>
-          <div className="flex gap-6">
-            <StatCard icon={<Car size={24}/>} label="Total Assets" value={stats.total} color="text-red-500" />
-            <StatCard icon={<Globe size={24}/>} label="Regions" value={stats.countries} color="text-emerald-500" />
+          
+          <div className="flex justify-between items-end w-full flex-wrap gap-10">
+            <div>
+              <h1 className="text-6xl font-black bg-gradient-to-r from-amber-800 via-orange-700 to-red-900 bg-clip-text text-transparent italic tracking-tighter leading-tight uppercase">Diecast Police Museum</h1>
+              <p className="text-zinc-700 mt-4 font-black tracking-[0.4em] text-[10px] uppercase drop-shadow-sm">Official Archive • Master Fleet Control</p>
+            </div>
+            <div className="flex gap-6">
+              <StatCard icon={<Car size={24}/>} label="Total Assets" value={stats.total} color="text-red-800" />
+              <StatCard icon={<Globe size={24}/>} label="Regions" value={stats.countries} color="text-emerald-800" />
+            </div>
           </div>
         </div>
 
@@ -161,7 +168,7 @@ export default function Home() {
             {/* Search Top */}
             <div className="relative">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-400" size={24} />
-              <input type="text" placeholder="Global Entry Search..." className="w-full bg-black/5 border border-black/5 rounded-3xl h-20 pl-16 pr-8 text-[#433422] outline-none focus:border-amber-600/30 transition-all font-bold text-xl placeholder:text-zinc-300" onChange={(e) => setSearch(e.target.value)} />
+              <input type="text" placeholder="Global Entry Search..." className="w-full bg-black/5 border border-black/5 rounded-3xl h-20 pl-16 pr-8 text-[#433422] outline-none focus:border-amber-600/30 transition-all font-bold text-xl placeholder:text-zinc-600" onChange={(e) => setSearch(e.target.value)} />
             </div>
             
             {/* Multi Filters Row */}
@@ -174,7 +181,7 @@ export default function Home() {
             
             {/* Results Count Summary */}
             <div className="flex items-center gap-4 pt-4 border-t border-white/5">
-               <span className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-700">Displaying {filtered.length} matching units</span>
+               <span className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-900">Displaying {filtered.length} matching units</span>
                {(selectedCountry !== "All" || selectedManufacturer !== "All" || selectedBrand !== "All" || selectedService !== "All" || search !== "") && (
                  <button onClick={() => {setSelectedCountry("All"); setSelectedManufacturer("All"); setSelectedBrand("All"); setSelectedService("All"); setSearch("");}} className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500 hover:text-white transition-colors flex items-center gap-2">
                    <X size={10}/> Reset System Filters
@@ -186,7 +193,7 @@ export default function Home() {
 
         {/* MAIN COLLECTION GRID */}
         <div>
-          <div className="flex items-center justify-between mb-12"><div className="flex items-center gap-6"><div className="w-1.5 h-10 bg-white/10 rounded-full" /><h2 className="text-5xl font-black italic tracking-tighter uppercase leading-none text-white underline decoration-white/5 underline-offset-8">COLLECTION</h2></div></div>
+          <div className="flex items-center justify-between mb-12"><div className="flex items-center gap-6"><div className="w-1.5 h-10 bg-black/20 rounded-full" /><h2 className="text-5xl font-black italic tracking-tighter uppercase leading-none text-[#433422] underline decoration-black/10 underline-offset-8">COLLECTION</h2></div></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-balance">
             {loading ? [...Array(8)].map((_, i) => <SkeletonCard key={i} />) : filtered.map((v) => (
                <VehicleCard key={v.id} vehicle={v} onClick={setSelectedVehicle} />
@@ -271,15 +278,18 @@ export default function Home() {
 }
 
 function FilterSelect({ label, options, value, onChange }: any) {
+  const typeWord = label.split(' ').pop() || '';
+  const pluralWord = typeWord.endsWith('y') ? typeWord.slice(0, -1) + 'ies' : typeWord + 's';
+
   return (
     <div className="flex flex-col gap-3 group">
       <label className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-900/40 ml-4 group-hover:text-amber-700 transition-colors">{label}</label>
       <select 
         value={value} 
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-white/40 border border-black/5 rounded-[1.5rem] h-14 px-6 text-zinc-500 outline-none cursor-pointer hover:border-black/20 transition-all font-bold text-xs uppercase tracking-widest focus:text-zinc-900"
+        className="w-full bg-white/40 border border-black/5 rounded-[1.5rem] h-14 px-6 text-zinc-800 outline-none cursor-pointer hover:border-black/20 transition-all font-bold text-xs uppercase tracking-widest focus:text-zinc-900"
       >
-        <option value="All">All {label.split(' ').pop()}s</option>
+        <option value="All">All {pluralWord}</option>
         {options.map((opt: any) => <option key={opt} value={opt}>{opt}</option>)}
       </select>
     </div>
@@ -327,8 +337,8 @@ function MiniDetail({ icon, label, value }: any) {
         {icon}
       </div>
       <div>
-        <div className="text-[9px] text-zinc-400 uppercase tracking-widest font-black leading-none mb-1">{label}</div>
-        <div className="text-zinc-700 font-bold text-sm tracking-tight">{value}</div>
+        <div className="text-[9px] text-zinc-600 uppercase tracking-widest font-black leading-none mb-1">{label}</div>
+        <div className="text-[#433422] font-bold text-sm tracking-tight">{value}</div>
       </div>
     </div>
   );
@@ -336,13 +346,13 @@ function MiniDetail({ icon, label, value }: any) {
 
 function DetailRow({ icon, label, value }: any) {
   return (
-    <div className="flex items-center gap-10 group cursor-default hover:bg-black/5 p-4 rounded-3xl transition-all -ml-4"><div className="p-7 bg-white/40 rounded-[2.5rem] border border-black/5 group-hover:border-amber-600/30 transition-all shadow-sm grayscale group-hover:grayscale-0">{icon}</div><div><div className="text-[12px] text-zinc-400 uppercase tracking-[0.5em] font-black mb-4 leading-none opacity-80">{label}</div><div className="text-[#433422] font-bold text-2xl tracking-tighter leading-snug drop-shadow-sm">{value || "Restricted Access"}</div></div></div>
+    <div className="flex items-center gap-10 group cursor-default hover:bg-black/5 p-4 rounded-3xl transition-all -ml-4"><div className="p-7 bg-white/40 rounded-[2.5rem] border border-black/5 group-hover:border-amber-600/30 transition-all shadow-sm grayscale group-hover:grayscale-0">{icon}</div><div><div className="text-[12px] text-zinc-600 uppercase tracking-[0.5em] font-black mb-4 leading-none opacity-80">{label}</div><div className="text-[#433422] font-bold text-2xl tracking-tighter leading-snug drop-shadow-sm">{value || "Restricted Access"}</div></div></div>
   );
 }
 
 function StatCard({ icon, label, value, color }: any) {
   return (
-    <div className="glass-card px-14 py-12 flex items-center gap-12 border border-black/5 shadow-xl group relative overflow-hidden"><div className="absolute -bottom-24 -right-24 scale-[5] opacity-[0.01] transition-all duration-1000 grayscale select-none pointer-events-none group-hover:rotate-12 group-hover:opacity-[0.03]">{icon}</div><div className={`${color} p-7 bg-white/40 rounded-[3rem] ring-1 ring-black/5 shadow-sm group-hover:scale-110 transition-all`}>{icon}</div><div><div className="text-6xl font-black text-[#433422] leading-none mb-4 tracking-tighter group-hover:text-amber-700 transition-colors uppercase">{value}</div><div className="text-[11px] text-zinc-400 uppercase font-black tracking-[0.6em] opacity-80 leading-none">{label}</div></div></div>
+    <div className="glass-card px-14 py-12 flex items-center gap-12 border border-black/5 shadow-xl group relative overflow-hidden"><div className="absolute -bottom-24 -right-24 scale-[5] opacity-[0.01] transition-all duration-1000 grayscale select-none pointer-events-none group-hover:rotate-12 group-hover:opacity-[0.03]">{icon}</div><div className={`${color} p-7 bg-white/40 rounded-[3rem] ring-1 ring-black/5 shadow-sm group-hover:scale-110 transition-all`}>{icon}</div><div><div className="text-6xl font-black text-[#433422] leading-none mb-4 tracking-tighter group-hover:text-amber-700 transition-colors uppercase">{value}</div><div className="text-[11px] text-zinc-700 uppercase font-black tracking-[0.6em] opacity-80 leading-none">{label}</div></div></div>
   );
 }
 
