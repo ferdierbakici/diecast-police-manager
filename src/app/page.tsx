@@ -144,7 +144,7 @@ export default function Home() {
         {/* Header with PNG Sign */}
         <div className="flex flex-col items-center mb-16 gap-12 w-full">
           <div className="w-full md:w-[400px] relative drop-shadow-2xl hover:scale-[1.02] transition-transform duration-700">
-             <Image src="/museum-sign.png" alt="Diecast Police Museum" width={600} height={400} className="w-full h-auto rounded-[2rem] border-8 border-white/40 sepia-[0.2]" />
+             <Image src="/museum-sign.png" alt="Diecast Police Museum" width={600} height={400} className="w-full h-auto rounded-[2rem] border-8 border-white/40 sepia-[0.2]" unoptimized={true} />
           </div>
           
           <div className="flex justify-between items-end w-full flex-wrap gap-10">
