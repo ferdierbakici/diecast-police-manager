@@ -191,6 +191,26 @@ export default function Home() {
           </div>
         </div>
 
+        {/* LATEST ADDITIONS */}
+        {search === "" && selectedCountry === "All" && selectedManufacturer === "All" && selectedBrand === "All" && selectedService === "All" && vehicles.length > 0 && (
+          <div className="mb-24">
+            <div className="flex items-center justify-between mb-12">
+              <div className="flex items-center gap-6">
+                 <div className="w-1.5 h-10 bg-amber-700/80 rounded-full" />
+                 <h2 className="text-4xl font-black italic tracking-tighter uppercase leading-none text-amber-900 underline decoration-amber-900/20 underline-offset-8">LAST ACQUISITIONS</h2>
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-800 bg-amber-100/50 px-4 py-2 rounded-full border border-amber-900/10">Recent 10 Models</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 text-balance">
+              {[...vehicles].sort((a, b) => b.id - a.id).slice(0, 10).map((v) => (
+                 <div key={v.id} className="scale-95 origin-left hover:scale-100 transition-transform duration-500">
+                   <VehicleCard vehicle={v} onClick={setSelectedVehicle} />
+                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* MAIN COLLECTION GRID */}
         <div>
           <div className="flex items-center justify-between mb-12"><div className="flex items-center gap-6"><div className="w-1.5 h-10 bg-black/20 rounded-full" /><h2 className="text-5xl font-black italic tracking-tighter uppercase leading-none text-[#433422] underline decoration-black/10 underline-offset-8">COLLECTION</h2></div></div>
