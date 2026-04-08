@@ -5,20 +5,23 @@
   --foreground: #433422;
   --card-bg: rgba(255, 255, 255, 0.5);
   --card-border: rgba(67, 52, 34, 0.1);
+  --font-playfair: Georgia, "Times New Roman", serif;
+  --font-barlow: "Arial Narrow", Arial, sans-serif;
+  --font-source: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --font-mono: "Cascadia Mono", "Consolas", "Courier New", monospace;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-source), 'Source Sans 3', sans-serif;
+  font-family: var(--font-source), "Source Sans 3", sans-serif;
 }
 
-/* ── Hero animations ── */
+/* Hero animations */
 @keyframes hero-breathe {
-
   0%,
   100% {
-    transform: scale(1.10);
+    transform: scale(1.1);
   }
 
   50% {
@@ -31,7 +34,6 @@ body {
 }
 
 @keyframes bounce-slow {
-
   0%,
   100% {
     transform: translateX(-50%) translateY(0);
@@ -48,7 +50,7 @@ body {
   animation: bounce-slow 3s ease-in-out infinite;
 }
 
-/* ── Scroll reveal ── */
+/* Scroll reveal */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -65,7 +67,7 @@ body {
   animation: fade-in-up 0.5s ease-out both;
 }
 
-/* ── Modal animation ── */
+/* Modal animation */
 @keyframes modal-fade-in {
   from {
     opacity: 0;
