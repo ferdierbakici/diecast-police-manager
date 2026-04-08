@@ -537,18 +537,10 @@ export default function Home() {
         </div>
 
         <section className="mb-16 rounded-[2rem] border border-[#433422]/8 bg-white/35 p-8 shadow-[0_30px_80px_rgba(67,52,34,0.08)] backdrop-blur-sm">
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.4em] text-[#8a7a64]">
-                Search Criteria
-              </p>
-              <h2 className="mt-2 font-[family-name:var(--font-playfair)] text-3xl font-black text-[#433422]">
-                Load collection only when needed
-              </h2>
-            </div>
-            <p className="max-w-2xl text-sm leading-6 text-[#6f614e]">
-              The homepage only loads filters, summary data, and the latest 10 models first. The collection grid stays empty until you apply a search or filter.
-            </p>
+          <div className="mb-8">
+            <h2 className="font-[family-name:var(--font-playfair)] text-4xl font-black text-[#433422] md:text-5xl">
+              Search Criteria
+            </h2>
           </div>
 
           <div className="flex flex-col gap-8">
@@ -575,7 +567,7 @@ export default function Home() {
                 {hasAppliedFilters ? (collectionLoading ? "Loading matching models" : `Showing ${collectionVehicles.length} models${collectionCount > 200 ? ` from top 200 of ${collectionCount}` : ""}`) : "No collection query runs until you apply at least one criteria"}
               </span>
               <div className="flex flex-wrap gap-3">
-                <button type="button" onClick={resetFilters} className="rounded-lg border border-[#433422]/10 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6f614e] transition-colors hover:border-[#433422]/25 hover:text-[#433422]">
+                <button type="button" onClick={resetFilters} className="rounded-lg border-2 border-rose-700/70 bg-rose-50 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-rose-800 shadow-sm transition-all hover:bg-rose-100 hover:border-rose-800">
                   Reset
                 </button>
                 <button type="button" onClick={applyFilters} disabled={!hasDraftFilters || collectionLoading} className="rounded-lg bg-[#433422] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-[#5c4b36] disabled:cursor-not-allowed disabled:bg-[#433422]/35">
@@ -586,6 +578,7 @@ export default function Home() {
           </div>
         </section>
 
+        {!hasAppliedFilters ? (
         <section className="mb-24">
           <div className="mb-12 flex items-center justify-between">
             <div className="flex items-center gap-6">
@@ -611,6 +604,7 @@ export default function Home() {
                 ))}
           </div>
         </section>
+        ) : null}
 
         <section className="mb-24">
           <div className="mb-12 flex items-center justify-between">
