@@ -103,6 +103,60 @@ function hasActiveFilters(filters: Filters) {
   );
 }
 
+function normalizeFilters(filters: Filters): Filters {
+  return {
+    search: filters.search.trim(),
+    country: filters.country,
+    manufacturer: filters.manufacturer,
+    brand: filters.brand,
+    service: filters.service,
+  };
+}
+
+function filtersEqual(left: Filters | null, right: Filters | null) {
+  if (!left && !right) return true;
+  if (!left || !right) return false;
+
+  const normalizedLeft = normalizeFilters(left);
+  const normalizedRight = normalizeFilters(right);
+
+  return (
+    normalizedLeft.search === normalizedRight.search &&
+    normalizedLeft.country === normalizedRight.country &&
+    normalizedLeft.manufacturer === normalizedRight.manufacturer &&
+    normalizedLeft.brand === normalizedRight.brand &&
+    normalizedLeft.service === normalizedRight.service
+  );
+}
+
+function filtersFromUrl(searchParams: URLSearchParams): Filters {
+  return {
+    search: searchParams.get("search") || "",
+    country: searchParams.get("country") || "All",
+    manufacturer: searchParams.get("manufacturer") || "All",
+    brand: searchParams.get("brand") || "All",
+    service: searchParams.get("service") || "All",
+  };
+}
+
+function syncUrlWithFilters(filters: Filters | null) {
+  if (typeof window === "undefined") return;
+
+  const url = new URL(window.location.href);
+  url.search = "";
+
+  if (filters) {
+    const normalized = normalizeFilters(filters);
+    if (normalized.search) url.searchParams.set("search", normalized.search);
+    if (normalized.country !== "All") url.searchParams.set("country", normalized.country);
+    if (normalized.manufacturer !== "All") url.searchParams.set("manufacturer", normalized.manufacturer);
+    if (normalized.brand !== "All") url.searchParams.set("brand", normalized.brand);
+    if (normalized.service !== "All") url.searchParams.set("service", normalized.service);
+  }
+
+  window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
 const InstagramIcon = ({ size = 20 }: { size?: number }) => (
   <svg
     width={size}
@@ -366,11 +420,25 @@ export default function Home() {
   const [collectionCount, setCollectionCount] = useState(0);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [showHeader, setShowHeader] = useState(false);
+  const [hasHydratedFilters, setHasHydratedFilters] = useState(false);
 
   useEffect(() => {
     void fetchStats();
     void fetchFilterOptions();
     void fetchRecentlyAdded();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const initialFilters = filtersFromUrl(new URLSearchParams(window.location.search));
+    setDraftFilters(initialFilters);
+
+    if (hasActiveFilters(initialFilters)) {
+      setAppliedFilters(normalizeFilters(initialFilters));
+    }
+
+    setHasHydratedFilters(true);
   }, []);
 
   useEffect(() => {
@@ -380,13 +448,18 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!hasHydratedFilters) return;
+
     if (!appliedFilters) {
       setCollectionVehicles([]);
       setCollectionCount(0);
+      syncUrlWithFilters(null);
       return;
     }
+
+    syncUrlWithFilters(appliedFilters);
     void fetchCollection(appliedFilters);
-  }, [appliedFilters]);
+  }, [appliedFilters, hasHydratedFilters]);
 
   async function fetchStats() {
     try {
@@ -477,13 +550,16 @@ export default function Home() {
   }
 
   function applyFilters() {
-    if (!hasActiveFilters(draftFilters)) {
+    const normalizedDraftFilters = normalizeFilters(draftFilters);
+
+    if (!hasActiveFilters(normalizedDraftFilters)) {
       setAppliedFilters(null);
       setCollectionVehicles([]);
       setCollectionCount(0);
       return;
     }
-    setAppliedFilters({ ...draftFilters, search: draftFilters.search.trim() });
+
+    setAppliedFilters(normalizedDraftFilters);
   }
 
   function resetFilters() {
@@ -495,6 +571,7 @@ export default function Home() {
 
   const hasDraftFilters = hasActiveFilters(draftFilters);
   const hasAppliedFilters = appliedFilters !== null;
+  const canApplyFilters = hasDraftFilters && !collectionLoading && !filtersEqual(normalizeFilters(draftFilters), appliedFilters);
 
   return (
     <div className="min-h-screen bg-[#fdf6e3] text-[#433422] selection:bg-amber-500/30">
@@ -543,7 +620,15 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="flex flex-col gap-8">
+          <div
+            className="flex flex-col gap-8"
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && canApplyFilters) {
+                event.preventDefault();
+                applyFilters();
+              }
+            }}
+          >
             <div className="relative">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8a7a64]/60" size={20} />
               <input
@@ -570,7 +655,7 @@ export default function Home() {
                 <button type="button" onClick={resetFilters} className="rounded-lg border-2 border-rose-700/70 bg-rose-50 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-rose-800 shadow-sm transition-all hover:bg-rose-100 hover:border-rose-800">
                   Reset
                 </button>
-                <button type="button" onClick={applyFilters} disabled={!hasDraftFilters || collectionLoading} className="rounded-lg bg-[#433422] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-[#5c4b36] disabled:cursor-not-allowed disabled:bg-[#433422]/35">
+                <button type="button" onClick={applyFilters} disabled={!canApplyFilters} className="rounded-lg bg-[#433422] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-[#5c4b36] disabled:cursor-not-allowed disabled:bg-[#433422]/35 disabled:text-white/70">
                   {collectionLoading ? "Loading..." : "Apply Filters"}
                 </button>
               </div>
