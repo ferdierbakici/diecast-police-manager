@@ -775,7 +775,12 @@ export default function Home() {
 
             <div className="relative flex w-full flex-col overflow-y-auto border-l border-[#433422]/5 bg-[#faf4e0] p-10 md:w-[40%]">
               <div className="mb-16 flex-1">
-                <StatusBadge status={selectedVehicle.availability_status} />
+                <div className="flex items-center justify-between mb-14">
+                  <StatusBadge status={selectedVehicle.availability_status} />
+                  <span className="font-[family-name:var(--font-mono)] text-xs font-bold tracking-widest text-[#8a7a64]/60">
+                    ID #{selectedVehicle.id}
+                  </span>
+                </div>
                 <div className="mb-4 flex items-center gap-4">
                   <span className="text-3xl">{selectedVehicle.countries?.flag_emoji}</span>
                   <span className="font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">Origin</span>
