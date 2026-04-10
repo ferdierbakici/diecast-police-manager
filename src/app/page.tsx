@@ -396,10 +396,10 @@ function DetailImage({ vehicle }: { vehicle: Vehicle }) {
   );
 }
 
-function StatusBadge({ status }: { status: string | null | undefined }) {
+function StatusBadge({ status, className }: { status: string | null | undefined; className?: string }) {
   const style = getStatusStyle(status);
   return (
-    <div className={`mb-14 inline-flex items-center gap-4 rounded-md px-6 py-3 text-[12px] font-bold uppercase tracking-wider shadow-sm ${style.bg} ${style.color}`}>
+    <div className={`${className || "mb-14"} inline-flex items-center gap-4 rounded-md px-6 py-3 text-[12px] font-bold uppercase tracking-wider shadow-sm ${style.bg} ${style.color}`}>
       {style.icon} {status || "Unknown"}
     </div>
   );
@@ -775,11 +775,11 @@ export default function Home() {
 
             <div className="relative flex w-full flex-col overflow-y-auto border-l border-[#433422]/5 bg-[#faf4e0] p-10 md:w-[40%]">
               <div className="mb-16 flex-1">
-                <div className="flex items-center justify-between mb-14">
-                  <StatusBadge status={selectedVehicle.availability_status} />
-                  <span className="font-[family-name:var(--font-mono)] text-xs font-bold tracking-widest text-[#8a7a64]/60">
-                    ID #{selectedVehicle.id}
-                  </span>
+                <div className="flex items-center justify-between mb-12">
+                  <StatusBadge status={selectedVehicle.availability_status} className="mb-0" />
+                  <div className="rounded-lg border border-[#433422]/10 bg-white/40 px-4 py-2 font-[family-name:var(--font-mono)] text-[11px] font-black tracking-wider text-[#433422] shadow-sm">
+                    MODEL ID: #{selectedVehicle.id}
+                  </div>
                 </div>
                 <div className="mb-4 flex items-center gap-4">
                   <span className="text-3xl">{selectedVehicle.countries?.flag_emoji}</span>
