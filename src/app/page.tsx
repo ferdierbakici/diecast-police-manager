@@ -431,11 +431,21 @@ export default function Home() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const initialFilters = filtersFromUrl(new URLSearchParams(window.location.search));
+    const searchParams = new URLSearchParams(window.location.search);
+    const initialFilters = filtersFromUrl(searchParams);
     setDraftFilters(initialFilters);
 
     if (hasActiveFilters(initialFilters)) {
       setAppliedFilters(normalizeFilters(initialFilters));
+    }
+
+    // Handle deep-link to specific model
+    const idParam = searchParams.get("id");
+    if (idParam) {
+      const id = parseInt(idParam);
+      if (!isNaN(id)) {
+        void fetchVehicleById(id);
+      }
     }
 
     setHasHydratedFilters(true);
@@ -542,6 +552,21 @@ export default function Home() {
       setCollectionCount(0);
     } finally {
       setCollectionLoading(false);
+    }
+  }
+
+  async function fetchVehicleById(id: number) {
+    try {
+      const { data, error } = await supabase
+        .from("vehicles")
+        .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      if (data) setSelectedVehicle(data as Vehicle);
+    } catch (error) {
+      console.error("fetchVehicleById error", error);
     }
   }
 
