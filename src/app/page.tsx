@@ -413,6 +413,8 @@ export default function Home() {
   const [stats, setStats] = useState({ total: 0, countries: 0, brands: 0 });
   const [recentlyAdded, setRecentlyAdded] = useState<Vehicle[]>([]);
   const [recentLoading, setRecentLoading] = useState(true);
+  const [recentlyAvailable, setRecentlyAvailable] = useState<Vehicle[]>([]);
+  const [recentlyAvailableLoading, setRecentlyAvailableLoading] = useState(true);
   const [draftFilters, setDraftFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState<Filters | null>(null);
   const [collectionVehicles, setCollectionVehicles] = useState<Vehicle[]>([]);
@@ -426,6 +428,7 @@ export default function Home() {
     void fetchStats();
     void fetchFilterOptions();
     void fetchRecentlyAdded();
+    void fetchRecentlyAvailable();
   }, []);
 
   useEffect(() => {
@@ -525,6 +528,24 @@ export default function Home() {
       console.error("fetchRecentlyAdded error", error);
     } finally {
       setRecentLoading(false);
+    }
+  }
+
+  async function fetchRecentlyAvailable() {
+    setRecentlyAvailableLoading(true);
+    try {
+      const { data } = await supabase
+        .from("vehicles")
+        .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
+        .or("availability_status.eq.Available,availability_status.eq.Available - Displayed,availability_status.eq.In Stock")
+        .order("id", { ascending: false })
+        .limit(10);
+
+      setRecentlyAvailable((data as Vehicle[]) || []);
+    } catch (error) {
+      console.error("fetchRecentlyAvailable error", error);
+    } finally {
+      setRecentlyAvailableLoading(false);
     }
   }
 
@@ -689,6 +710,41 @@ export default function Home() {
         </section>
 
         {!hasAppliedFilters ? (
+        <>
+        <section className="mb-24">
+          <div className="mb-12 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="h-10 w-1.5 rounded-full bg-emerald-700/80" />
+              <div>
+                <p className="font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.35em] text-[#8a7a64]">
+                  Collection Highlights
+                </p>
+                <h2 className="font-[family-name:var(--font-playfair)] text-3xl font-black leading-none text-[#433422]">
+                  Recently Available
+                </h2>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+            {recentlyAvailableLoading
+              ? [...Array(10)].map((_, index) => <SkeletonCard key={index} />)
+              : recentlyAvailable.length > 0
+                ? recentlyAvailable.map((vehicle, index) => (
+                    <div key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 60}ms` }}>
+                      <VehicleCard vehicle={vehicle} onClick={setSelectedVehicle} />
+                    </div>
+                  ))
+                : <div className="col-span-full flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-emerald-700/15 bg-emerald-50/30 px-6 py-16 text-center">
+                    <CheckCircle2 size={40} className="text-emerald-700/30" />
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-900/60">No available models yet</p>
+                      <p className="text-xs text-emerald-700/70">Models will appear here once they become available</p>
+                    </div>
+                  </div>}
+          </div>
+        </section>
+
         <section className="mb-24">
           <div className="mb-12 flex items-center justify-between">
             <div className="flex items-center gap-6">
@@ -714,6 +770,7 @@ export default function Home() {
                 ))}
           </div>
         </section>
+        </>
         ) : null}
 
         <section className="mb-24">
