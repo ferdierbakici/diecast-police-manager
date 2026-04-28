@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Diecast Police Museum Web UI
+
+Official web interface for the Diecast Police Museum collection archive.
+
+## Features
+
+- **Recently Available** - Showcase newly acquired models that are now in stock
+- **Last 10 Added Models** - Display the latest additions to the collection  
+- **Advanced Filtering** - Search by country, manufacturer, brand, and emergency service
+- **Detailed Model Information** - View complete vehicle specifications and metadata
+- **Responsive Design** - Vintage-themed UI optimized for all devices
 
 ## Getting Started
 
