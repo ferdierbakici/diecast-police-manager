@@ -537,8 +537,10 @@ export default function Home() {
       const { data } = await supabase
         .from("vehicles")
         .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
-        .or("availability_status.eq.Available,availability_status.eq.Available - Displayed,availability_status.eq.In Stock")
-        .order("id", { ascending: false })
+        .eq("availability_status", "Available")
+        .neq("previous_status", "Available")  // Status changed TO Available
+        .not("previous_status", "is", null)    // Has a previous status recorded
+        .order("status_changed_at", { ascending: false })
         .limit(10);
 
       setRecentlyAvailable((data as Vehicle[]) || []);
