@@ -36,6 +36,10 @@ type Vehicle = {
   model_name?: string | null;
   model_image?: string | null;
   availability_status?: string | null;
+  previous_status?: string | null;
+  status_changed_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
   emergency_service?: string | null;
   scale?: string | null;
   model_year?: string | number | null;
@@ -538,12 +542,19 @@ export default function Home() {
         .from("vehicles")
         .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
         .eq("availability_status", "Available")
-        .neq("previous_status", "Available")  // Status changed TO Available
-        .not("previous_status", "is", null)    // Has a previous status recorded
-        .order("status_changed_at", { ascending: false })
-        .limit(10);
+        .or("previous_status.is.null,previous_status.neq.Available")
+        .limit(50);
 
-      setRecentlyAvailable((data as Vehicle[]) || []);
+      const sortedVehicles = ((data as Vehicle[]) || [])
+        .sort((a, b) => {
+          const aTimestamp = a.status_changed_at || a.created_at || a.updated_at || "";
+          const bTimestamp = b.status_changed_at || b.created_at || b.updated_at || "";
+
+          return new Date(bTimestamp).getTime() - new Date(aTimestamp).getTime();
+        })
+        .slice(0, 10);
+
+      setRecentlyAvailable(sortedVehicles);
     } catch (error) {
       console.error("fetchRecentlyAvailable error", error);
     } finally {
