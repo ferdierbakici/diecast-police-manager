@@ -16,10 +16,14 @@ import {
   ExternalLink,
   Factory,
   Globe,
+  House,
   Hammer,
   HelpCircle,
   Layers,
   Locate,
+  Mail,
+  NotebookText,
+  UserRound,
   MapPin,
   Paintbrush,
   Ruler,
@@ -30,6 +34,7 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 type Vehicle = {
   id: number;
@@ -554,6 +559,7 @@ export default function Home() {
       const { data } = await supabase
         .from("vehicles")
         .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
+        .eq("availability_status", "Available")
         .in("availability_status", ["Available", "Available - Displayed", "In Stock"])
         .or("previous_status.is.null,previous_status.neq.Available")
         .limit(50);
@@ -650,6 +656,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#fdf6e3] text-[#433422] selection:bg-amber-500/30">
       <StickyHeader show={showHeader} />
 
+
       <section className="relative flex h-screen w-full items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
@@ -661,6 +668,26 @@ export default function Home() {
             unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-[#fdf6e3]" />
+        </div>
+        <div className="absolute top-8 left-1/2 z-30 w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2">
+          <nav className="mx-auto flex flex-wrap items-center justify-center gap-3 rounded-[1.6rem] border border-[#5a4331]/15 bg-[rgba(247,240,228,0.88)] px-3 py-3 shadow-[0_18px_45px_rgba(43,30,20,0.18)] backdrop-blur-md md:gap-4 md:px-4">
+            <Link href="/" className="inline-flex items-center gap-3 rounded-[1rem] border border-[#8c6a43]/20 bg-[linear-gradient(180deg,rgba(111,78,55,0.16),rgba(111,78,55,0.1))] px-5 py-3 text-sm font-bold tracking-[0.01em] text-[#4f311c] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/35 hover:bg-[linear-gradient(180deg,rgba(111,78,55,0.22),rgba(111,78,55,0.14))] hover:text-[#2d1d12]">
+              <House size={18} />
+              <span>Home</span>
+            </Link>
+            <Link href="/about" className="inline-flex items-center gap-3 rounded-[1rem] border border-transparent px-5 py-3 text-sm font-semibold tracking-[0.01em] text-[#5f4a37] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/20 hover:bg-[rgba(111,78,55,0.08)] hover:text-[#3f2819]">
+              <UserRound size={18} />
+              <span>About</span>
+            </Link>
+            <Link href="/blog" className="inline-flex items-center gap-3 rounded-[1rem] border border-transparent px-5 py-3 text-sm font-semibold tracking-[0.01em] text-[#5f4a37] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/20 hover:bg-[rgba(111,78,55,0.08)] hover:text-[#3f2819]">
+              <NotebookText size={18} />
+              <span>Blog</span>
+            </Link>
+            <Link href="/contact" className="inline-flex items-center gap-3 rounded-[1rem] border border-transparent px-5 py-3 text-sm font-semibold tracking-[0.01em] text-[#5f4a37] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/20 hover:bg-[rgba(111,78,55,0.08)] hover:text-[#3f2819]">
+              <Mail size={18} />
+              <span>Contact</span>
+            </Link>
+          </nav>
         </div>
         <div className="animate-bounce-slow absolute bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3">
           <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/60">Explore Collection</span>
@@ -843,9 +870,22 @@ export default function Home() {
             <Image src="/museum-sign.png" alt="Logo" width={32} height={22} className="rounded opacity-60" unoptimized />
             <span className="text-xs font-medium text-[#8a7a64]">Copyright 2026 Diecast Police Museum</span>
           </div>
-          <span className="font-[family-name:var(--font-barlow)] text-[10px] uppercase tracking-wider text-[#8a7a64]/60">
-            All Rights Reserved
-          </span>
+          <div className="flex flex-col items-center gap-4 md:items-end">
+            <div className="flex flex-wrap items-center justify-center gap-3 md:justify-end">
+              <a href="https://www.diecast-police.com/" target="_blank" rel="noopener noreferrer" className="rounded-md border border-[#433422]/10 bg-white/50 px-3 py-2 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.25em] text-[#433422] transition-colors hover:border-amber-700/30 hover:bg-amber-50">
+                WEB
+              </a>
+              <a href="https://diecastpolice.vercel.app/" target="_blank" rel="noopener noreferrer" className="rounded-md border border-[#433422]/10 bg-white/50 px-3 py-2 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.25em] text-[#433422] transition-colors hover:border-amber-700/30 hover:bg-amber-50">
+                APP
+              </a>
+              <a href="https://www.instagram.com/diecast_police/" target="_blank" rel="noopener noreferrer" className="rounded-md border border-[#433422]/10 bg-white/50 px-3 py-2 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.25em] text-[#433422] transition-colors hover:border-amber-700/30 hover:bg-amber-50">
+                IG
+              </a>
+            </div>
+            <span className="font-[family-name:var(--font-barlow)] text-[10px] uppercase tracking-wider text-[#8a7a64]/60">
+              All Rights Reserved
+            </span>
+          </div>
         </div>
       </footer>
 
@@ -940,3 +980,7 @@ export default function Home() {
     </div>
   );
 }
+
+
+
+
