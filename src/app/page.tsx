@@ -75,6 +75,7 @@ type Filters = {
   manufacturer: string;
   brand: string;
   service: string;
+  status: string;
 };
 
 const DEFAULT_FILTERS: Filters = {
@@ -83,6 +84,7 @@ const DEFAULT_FILTERS: Filters = {
   manufacturer: "All",
   brand: "All",
   service: "All",
+  status: "All",
 };
 
 const STATUS_STYLES: Record<string, { color: string; bg: string; icon: ReactNode }> = {
@@ -108,7 +110,8 @@ function hasActiveFilters(filters: Filters) {
     filters.country !== "All" ||
     filters.manufacturer !== "All" ||
     filters.brand !== "All" ||
-    filters.service !== "All"
+    filters.service !== "All" ||
+    filters.status !== "All"
   );
 }
 
@@ -119,6 +122,7 @@ function normalizeFilters(filters: Filters): Filters {
     manufacturer: filters.manufacturer,
     brand: filters.brand,
     service: filters.service,
+    status: filters.status,
   };
 }
 
@@ -134,7 +138,8 @@ function filtersEqual(left: Filters | null, right: Filters | null) {
     normalizedLeft.country === normalizedRight.country &&
     normalizedLeft.manufacturer === normalizedRight.manufacturer &&
     normalizedLeft.brand === normalizedRight.brand &&
-    normalizedLeft.service === normalizedRight.service
+    normalizedLeft.service === normalizedRight.service &&
+    normalizedLeft.status === normalizedRight.status
   );
 }
 
@@ -145,6 +150,7 @@ function filtersFromUrl(searchParams: URLSearchParams): Filters {
     manufacturer: searchParams.get("manufacturer") || "All",
     brand: searchParams.get("brand") || "All",
     service: searchParams.get("service") || "All",
+    status: searchParams.get("status") || "All",
   };
 }
 
@@ -161,6 +167,7 @@ function syncUrlWithFilters(filters: Filters | null) {
     if (normalized.manufacturer !== "All") url.searchParams.set("manufacturer", normalized.manufacturer);
     if (normalized.brand !== "All") url.searchParams.set("brand", normalized.brand);
     if (normalized.service !== "All") url.searchParams.set("service", normalized.service);
+    if (normalized.status !== "All") url.searchParams.set("status", normalized.status);
   }
 
   window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
@@ -304,7 +311,6 @@ function StatCard({ icon, label, value, color }: { icon: ReactNode; label: strin
   );
 }
 
-
 function SkeletonCard() {
   return (
     <div className="h-[420px] animate-pulse rounded-xl border border-[#433422]/8 bg-white/30">
@@ -419,6 +425,7 @@ export default function Home() {
   const [manufacturers, setManufacturers] = useState<string[]>([]);
   const [brands, setBrands] = useState<string[]>([]);
   const [emergencyServices, setEmergencyServices] = useState<string[]>([]);
+  const [statuses, setStatuses] = useState<string[]>([]);
   const [stats, setStats] = useState({ total: 0, countries: 0, brands: 0 });
   const [recentlyAdded, setRecentlyAdded] = useState<Vehicle[]>([]);
   const [recentLoading, setRecentLoading] = useState(true);
@@ -503,11 +510,12 @@ export default function Home() {
 
   async function fetchFilterOptions() {
     try {
-      const [{ data: countryData }, { data: manufacturerData }, { data: brandData }, { data: serviceData }] = await Promise.all([
+      const [{ data: countryData }, { data: manufacturerData }, { data: brandData }, { data: serviceData }, { data: statusData }] = await Promise.all([
         supabase.from("countries").select("name").order("name"),
         supabase.from("manufacturers").select("name").order("name"),
         supabase.from("vehicle_brands").select("name").order("name"),
         supabase.from("vehicles").select("emergency_service").order("emergency_service"),
+        supabase.from("vehicles").select("availability_status").order("availability_status"),
       ]);
 
       setCountries((countryData || []).map((row: { name?: string | null }) => row.name || "").filter(Boolean));
@@ -516,6 +524,11 @@ export default function Home() {
       setEmergencyServices(
         Array.from(
           new Set((serviceData || []).map((row: { emergency_service?: string | null }) => row.emergency_service || "").filter(Boolean)),
+        ).sort(),
+      );
+      setStatuses(
+        Array.from(
+          new Set((statusData || []).map((row: { availability_status?: string | null }) => row.availability_status || "").filter(Boolean)),
         ).sort(),
       );
     } catch (error) {
@@ -547,6 +560,7 @@ export default function Home() {
         .from("vehicles")
         .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
         .eq("availability_status", "Available")
+        .in("availability_status", ["Available", "Available - Displayed", "In Stock"])
         .or("previous_status.is.null,previous_status.neq.Available")
         .limit(50);
 
@@ -581,6 +595,7 @@ export default function Home() {
       if (filters.manufacturer !== "All") query = query.eq("manufacturers.name", filters.manufacturer);
       if (filters.brand !== "All") query = query.eq("vehicle_brands.name", filters.brand);
       if (filters.service !== "All") query = query.eq("emergency_service", filters.service);
+      if (filters.status !== "All") query = query.eq("availability_status", filters.status);
 
       const { data, count } = await query;
       setCollectionVehicles((data as Vehicle[]) || []);
@@ -725,8 +740,9 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
               <FilterSelect label="Country" options={countries} value={draftFilters.country} onChange={(value) => updateDraftFilter("country", value)} />
+              <FilterSelect label="Status" options={statuses} value={draftFilters.status} onChange={(value) => updateDraftFilter("status", value)} />
               <FilterSelect label="Emergency Service" options={emergencyServices} value={draftFilters.service} onChange={(value) => updateDraftFilter("service", value)} />
               <FilterSelect label="Manufacturer" options={manufacturers} value={draftFilters.manufacturer} onChange={(value) => updateDraftFilter("manufacturer", value)} />
               <FilterSelect label="Vehicle Brand" options={brands} value={draftFilters.brand} onChange={(value) => updateDraftFilter("brand", value)} />
