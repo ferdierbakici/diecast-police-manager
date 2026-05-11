@@ -66,13 +66,32 @@ export default function StatisticsPage() {
   async function fetchData() {
     setLoading(true);
     try {
-      const { data, error: supabaseError } = await supabase
-        .from("vehicles")
-        .select("id, availability_status, emergency_service, countries(name, flag_emoji), manufacturers(name), vehicle_brands(name)");
+      let allVehicles: Vehicle[] = [];
+      let hasMore = true;
+      let page = 0;
+      const pageSize = 1000;
 
-      if (supabaseError) throw supabaseError;
+      while (hasMore) {
+        const { data, error: supabaseError } = await supabase
+          .from("vehicles")
+          .select("id, availability_status, emergency_service, countries(name, flag_emoji), manufacturers(name), vehicle_brands(name)")
+          .range(page * pageSize, (page + 1) * pageSize - 1);
 
-      const vehicles = (data as Vehicle[]) || [];
+        if (supabaseError) throw supabaseError;
+
+        if (data && data.length > 0) {
+          allVehicles = [...allVehicles, ...(data as Vehicle[])];
+          page++;
+          // If we got fewer records than the page size, it was the last page
+          if (data.length < pageSize) {
+            hasMore = false;
+          }
+        } else {
+          hasMore = false;
+        }
+      }
+
+      const vehicles = allVehicles;
 
       // 1. Basic Counts
       const countriesSet = new Set<string>();
