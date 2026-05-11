@@ -348,6 +348,9 @@ function StickyHeader({ show }: { show: boolean }) {
       <div className="border-b border-[#433422]/8 bg-[#fdf6e3]/90 px-8 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Image src="/museum-sign.png" alt="Logo" width={40} height={28} className="rounded" unoptimized />
+          <a href="https://www.instagram.com/diecast_police/" target="_blank" rel="noopener noreferrer" className="text-[#433422]/60 hover:text-amber-700 transition-colors">
+            <InstagramIcon size={20} />
+          </a>
         </div>
       </div>
     </header>
@@ -687,6 +690,16 @@ export default function Home() {
               <Mail size={18} />
               <span>Contact</span>
             </Link>
+            <div className="mx-1 h-6 w-px bg-[#5a4331]/10 hidden md:block" />
+            <a 
+              href="https://www.instagram.com/diecast_police/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="inline-flex items-center gap-3 rounded-[1rem] border border-[#e1306c]/10 bg-[rgba(225,48,108,0.05)] px-5 py-3 text-sm font-bold tracking-[0.01em] text-[#e1306c] transition-all hover:-translate-y-0.5 hover:border-[#e1306c]/30 hover:bg-[rgba(225,48,108,0.12)]"
+            >
+              <InstagramIcon size={18} />
+              <span>Instagram</span>
+            </a>
           </nav>
         </div>
         <div className="animate-bounce-slow absolute bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3">
