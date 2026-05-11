@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import {
   AlertCircle,
   Archive,
+  BarChart3,
   Box,
   Calendar,
   Car,
@@ -685,6 +686,10 @@ export default function Home() {
             <Link href="/blog" className="inline-flex items-center gap-3 rounded-[1rem] border border-transparent px-5 py-3 text-sm font-semibold tracking-[0.01em] text-[#5f4a37] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/20 hover:bg-[rgba(111,78,55,0.08)] hover:text-[#3f2819]">
               <NotebookText size={18} />
               <span>Blog</span>
+            </Link>
+            <Link href="/statistics" className="inline-flex items-center gap-3 rounded-[1rem] border border-transparent px-5 py-3 text-sm font-semibold tracking-[0.01em] text-[#5f4a37] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/20 hover:bg-[rgba(111,78,55,0.08)] hover:text-[#3f2819]">
+              <BarChart3 size={18} />
+              <span>Statistics</span>
             </Link>
             <Link href="/contact" className="inline-flex items-center gap-3 rounded-[1rem] border border-transparent px-5 py-3 text-sm font-semibold tracking-[0.01em] text-[#5f4a37] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/20 hover:bg-[rgba(111,78,55,0.08)] hover:text-[#3f2819]">
               <Mail size={18} />
