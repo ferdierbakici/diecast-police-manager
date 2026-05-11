@@ -107,8 +107,23 @@ export default function StatisticsPage() {
         }
         countryMap.set(countryName, cData);
 
-        // Service
-        const service = v.emergency_service || "Other";
+        // Service - Grouping logic
+        let rawService = v.emergency_service || "Other";
+        let service = "Other";
+        
+        const lowerService = rawService.toLowerCase();
+        if (lowerService.includes("police") || lowerService.includes("polizia") || lowerService.includes("policia") || lowerService.includes("milic") || lowerService.includes("gendarmerie") || lowerService.includes("carabinieri") || lowerService.includes("sheriff") || lowerService.includes("highway patrol")) {
+          service = "Police";
+        } else if (lowerService.includes("fire") || lowerService.includes("pompier") || lowerService.includes("itfaiye")) {
+          service = "Fire";
+        } else if (lowerService.includes("ambulance") || lowerService.includes("medical") || lowerService.includes("hospital") || lowerService.includes("red cross") || lowerService.includes("paramedic") || lowerService.includes("crveni krst")) {
+          service = "Ambulance";
+        } else if (lowerService.includes("coast guard") || lowerService.includes("border") || lowerService.includes("customs") || lowerService.includes("military")) {
+          service = "Special / Military";
+        } else {
+          service = rawService; // Fallback to raw if it doesn't match common patterns but isn't "Other"
+        }
+
         serviceMap.set(service, (serviceMap.get(service) || 0) + 1);
 
         // Manufacturer
