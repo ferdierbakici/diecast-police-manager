@@ -249,7 +249,7 @@ export default function StatisticsPage() {
             <span className="inline-flex rounded-full border border-[#433422]/10 bg-white/70 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#8a7a64]">
               Collection Intelligence
             </span>
-            <h1 className="font-[family-name:var(--font-playfair)] text-5xl font-bold tracking-tight sm:text-6xl">
+            <h1 className="font-[family-name:var(--font-playfair)] text-4xl font-bold tracking-tight sm:text-5xl">
               Archive Insights
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-[#5b4a37]">

@@ -718,11 +718,11 @@ export default function Home() {
       <div className="mx-auto max-w-7xl px-8 pb-8 pt-16">
         <div className="mb-16 flex flex-col items-start justify-between gap-10 md:flex-row md:items-end">
           <div>
-            <h1 className="font-[family-name:var(--font-playfair)] text-5xl font-black uppercase leading-tight tracking-tighter text-[#433422] md:text-6xl">
+            <h1 className="font-[family-name:var(--font-playfair)] text-4xl font-bold uppercase leading-tight tracking-tight text-[#433422] md:text-5xl">
               Diecast Police Museum
             </h1>
-            <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.4em] text-[#8a7a64]">
-              Official Archive and Master Fleet Control
+            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#8a7a64]/80">
+              Official Archive & Master Fleet Control
             </p>
           </div>
           <div className="flex flex-wrap gap-6">
