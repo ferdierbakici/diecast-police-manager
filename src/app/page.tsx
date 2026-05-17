@@ -592,7 +592,7 @@ export default function Home() {
         .from("vehicles")
         .select("*, countries!inner(*), vehicle_brands!inner(*), manufacturers!inner(*)", { count: "exact" })
         .order("id", { ascending: false })
-        .limit(3000);
+        .limit(400);
 
       if (filters.search.trim()) query = query.ilike("model_name", `%${filters.search.trim()}%`);
       if (filters.country !== "All") query = query.eq("countries.name", filters.country);
