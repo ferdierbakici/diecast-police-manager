@@ -299,6 +299,14 @@ export default function AboutPage() {
 
           <aside className="about-side">
             <div className="side-top">
+              <h2 className="side-title">Diecast Police Museum</h2>
+              <p className="side-text">
+                A focused digital archive for emergency service diecast collecting, shaped by a real collector&apos;s long-term work and kept open for future additions.
+              </p>
+              <p className="side-text" style={{fontWeight: 800}}>
+                This site is belong to Diecast Police.
+              </p>
+
               <div className="logo-wrap">
                 <Image
                   src="/museum-sign.png"
@@ -310,11 +318,6 @@ export default function AboutPage() {
                   unoptimized
                 />
               </div>
-
-              <h2 className="side-title">Diecast Police Museum</h2>
-              <p className="side-text">
-                A focused digital archive for emergency service diecast collecting, shaped by a real collector&apos;s long-term work and kept open for future additions.
-              </p>
             </div>
 
             <div className="side-links">
