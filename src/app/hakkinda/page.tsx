@@ -160,6 +160,9 @@ export default function AboutPage() {
         }
 
         .logo-wrap {
+          display: grid;
+          gap: 1rem;
+          justify-items: center;
           border-radius: 24px;
           background: rgba(255,255,255,0.08);
           border: 1px solid rgba(255,255,255,0.12);
@@ -311,6 +314,15 @@ export default function AboutPage() {
                 <Image
                   src="/museum-sign.png"
                   alt="Diecast Police Museum logo"
+                  width={760}
+                  height={430}
+                  className="h-auto w-full rounded-2xl"
+                  priority
+                  unoptimized
+                />
+                <Image
+                  src="/logo4.jpg"
+                  alt="Diecast Police brand logo"
                   width={760}
                   height={430}
                   className="h-auto w-full rounded-2xl"
