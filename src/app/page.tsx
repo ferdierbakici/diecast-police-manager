@@ -98,19 +98,23 @@ function getEmergencyServiceGroup(service: string | null | undefined) {
 
   if (!normalized) return "Other";
 
-  if (/(police|policia|polizia|sheriff|patrol|constabulary|milic|highway patrol|law enforcement|municipal police)/.test(normalized)) {
+  if (
+    /(police|policia|polizia|sheriff|patrol|constabulary|milic|highway patrol|law enforcement|municipal police|customs|border|zoll|federal police|military police|national police|state police|local police|douane|guardia di finanza|straz graniczna|police municipale)/.test(
+      normalized
+    )
+  ) {
     return "Police";
   }
 
-  if (/(fire|firefighter|fire service|itfaiye|pompier|bomberos)/.test(normalized)) {
+  if (/(fire|firefighter|fire service|itfaiye|pompier|bomberos|feuerwehr|hasiči|vigili del fuoco|пожарная|shōbō|xiāofáng)/.test(normalized)) {
     return "Fire";
   }
 
-  if (/(ambulance|medical|hospital|paramedic|red cross|rescue|medic)/.test(normalized)) {
+  if (/(ambulance|medical|hospital|paramedic|red cross|rescue|medic|ambulans|ambulanza|drk|ems|samu|notarzt|rettungsdienst|скорая)/.test(normalized)) {
     return "Ambulance";
   }
 
-  if (/(gendarmerie|gendarmeria|guardia civil|jandarma|carabinieri)/.test(normalized)) {
+  if (/(gendarmerie|gendarmeria|guardia civil|jandarma|carabinieri|carabineros|marechaussee)/.test(normalized)) {
     return "Gendarmerie";
   }
 
@@ -557,28 +561,56 @@ export default function Home() {
 
   async function fetchFilterOptions() {
     try {
-      const [{ data: countryData }, { data: manufacturerData }, { data: brandData }, { data: serviceData }, { data: statusData }] = await Promise.all([
+      const [{ data: countryData }, { data: manufacturerData }, { data: brandData }] = await Promise.all([
         supabase.from("countries").select("name").order("name"),
         supabase.from("manufacturers").select("name").order("name"),
         supabase.from("vehicle_brands").select("name").order("name"),
-        supabase.from("vehicles").select("emergency_service").order("emergency_service"),
-        supabase.from("vehicles").select("availability_status").order("availability_status"),
       ]);
 
+      let allServiceRows: { emergency_service?: string | null; availability_status?: string | null }[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data } = await supabase
+          .from("vehicles")
+          .select("emergency_service, availability_status")
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (data && data.length > 0) {
+          allServiceRows = allServiceRows.concat(data);
+          if (data.length < pageSize) {
+            hasMore = false;
+          } else {
+            page++;
+          }
+        } else {
+          hasMore = false;
+        }
+      }
+
       const uniqueServices = Array.from(
-        new Set((serviceData || []).map((row: { emergency_service?: string | null }) => row.emergency_service || "").filter(Boolean)),
+        new Set(allServiceRows.map((row) => row.emergency_service || "").filter(Boolean)),
       ).sort((left, right) => left.localeCompare(right));
 
-      const groupedServices = {
-        Police: [] as string[],
-        Fire: [] as string[],
-        Ambulance: [] as string[],
-        Gendarmerie: [] as string[],
-        Other: [] as string[],
+      const uniqueStatuses = Array.from(
+        new Set(allServiceRows.map((row) => row.availability_status || "").filter(Boolean)),
+      ).sort((left, right) => left.localeCompare(right));
+
+      const groupedServices: Record<string, string[]> = {
+        Police: [],
+        Fire: [],
+        Ambulance: [],
+        Gendarmerie: [],
+        Other: [],
       };
 
       for (const service of uniqueServices) {
         const group = getEmergencyServiceGroup(service);
+        if (!groupedServices[group]) {
+          groupedServices[group] = [];
+        }
         groupedServices[group].push(service);
       }
 
@@ -587,11 +619,7 @@ export default function Home() {
       setBrands((brandData || []).map((row: { name?: string | null }) => row.name || "").filter(Boolean));
       setEmergencyServices(uniqueServices);
       setEmergencyServiceGroups(groupedServices);
-      setStatuses(
-        Array.from(
-          new Set((statusData || []).map((row: { availability_status?: string | null }) => row.availability_status || "").filter(Boolean)),
-        ).sort(),
-      );
+      setStatuses(uniqueStatuses);
     } catch (error) {
       console.error("fetchFilterOptions error", error);
     }
