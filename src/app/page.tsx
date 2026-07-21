@@ -490,6 +490,8 @@ export default function Home() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [showHeader, setShowHeader] = useState(false);
   const [hasHydratedFilters, setHasHydratedFilters] = useState(false);
+  const [collectionPage, setCollectionPage] = useState(1);
+  const PAGE_SIZE = 100;
 
   useEffect(() => {
     void fetchStats();
@@ -533,13 +535,20 @@ export default function Home() {
     if (!appliedFilters) {
       setCollectionVehicles([]);
       setCollectionCount(0);
+      setCollectionPage(1);
       syncUrlWithFilters(null);
       return;
     }
 
     syncUrlWithFilters(appliedFilters);
-    void fetchCollection(appliedFilters);
+    void fetchCollection(appliedFilters, 1);
   }, [appliedFilters, hasHydratedFilters]);
+
+  useEffect(() => {
+    if (!appliedFilters || !hasHydratedFilters) return;
+    void fetchCollection(appliedFilters, collectionPage);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectionPage]);
 
   async function fetchStats() {
     try {
@@ -670,14 +679,17 @@ export default function Home() {
     }
   }
 
-  async function fetchCollection(filters: Filters) {
+  async function fetchCollection(filters: Filters, page: number) {
     setCollectionLoading(true);
+    setCollectionPage(page);
+    const from = (page - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
     try {
       let query = supabase
         .from("vehicles")
         .select("*, countries!inner(*), vehicle_brands!inner(*), manufacturers!inner(*)", { count: "exact" })
         .order("id", { ascending: false })
-        .limit(400);
+        .range(from, to);
 
       if (filters.search.trim()) query = query.ilike("model_name", `%${filters.search.trim()}%`);
       if (filters.country !== "All") query = query.eq("countries.name", filters.country);
@@ -749,9 +761,11 @@ export default function Home() {
       setAppliedFilters(null);
       setCollectionVehicles([]);
       setCollectionCount(0);
+      setCollectionPage(1);
       return;
     }
 
+    setCollectionPage(1);
     setAppliedFilters(normalizedDraftFilters);
   }
 
@@ -883,7 +897,13 @@ export default function Home() {
 
             <div className="flex flex-col gap-4 border-t border-[#433422]/5 pt-5 md:flex-row md:items-center md:justify-between">
               <span className="font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">
-                {hasAppliedFilters ? (collectionLoading ? "Loading matching models" : `Showing ${collectionVehicles.length} models${collectionCount > 200 ? ` from top 200 of ${collectionCount}` : ""}`) : "No collection query runs until you apply at least one criteria"}
+                {hasAppliedFilters
+                  ? collectionLoading
+                    ? "Loading matching models"
+                    : collectionCount > 0
+                      ? `Page ${collectionPage} of ${Math.ceil(collectionCount / PAGE_SIZE)} — ${collectionCount} total models`
+                      : "No models found"
+                  : "No collection query runs until you apply at least one criteria"}
               </span>
               <div className="flex flex-wrap gap-3">
                 <button type="button" onClick={resetFilters} className="rounded-lg border-2 border-rose-700/70 bg-rose-50 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-rose-800 shadow-sm transition-all hover:bg-rose-100 hover:border-rose-800">
@@ -974,9 +994,9 @@ export default function Home() {
                 </h2>
               </div>
             </div>
-            {hasAppliedFilters && !collectionLoading ? (
+            {hasAppliedFilters && !collectionLoading && collectionCount > 0 ? (
               <span className="font-[family-name:var(--font-barlow)] text-xs font-bold uppercase tracking-[0.2em] text-[#8a7a64]">
-                {collectionVehicles.length} results
+                {collectionCount} total
               </span>
             ) : null}
           </div>
@@ -994,6 +1014,51 @@ export default function Home() {
                   : <CollectionEmptyState hasAppliedFilters />
                 : <CollectionEmptyState hasAppliedFilters={false} />}
           </div>
+
+          {hasAppliedFilters && !collectionLoading && collectionCount > PAGE_SIZE ? (
+            <div className="mt-12 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                disabled={collectionPage <= 1}
+                onClick={() => {
+                  const prev = collectionPage - 1;
+                  setCollectionPage(prev);
+                }}
+                className="flex items-center gap-2 rounded-lg border border-[#433422]/15 bg-white/50 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#433422] transition-all hover:border-amber-700/40 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                ← Prev
+              </button>
+
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: Math.ceil(collectionCount / PAGE_SIZE) }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setCollectionPage(p)}
+                    className={`h-9 min-w-[2.25rem] rounded-lg border px-2 text-[11px] font-bold transition-all ${
+                      p === collectionPage
+                        ? "border-amber-700 bg-amber-700 text-white"
+                        : "border-[#433422]/15 bg-white/50 text-[#433422] hover:border-amber-700/40 hover:bg-amber-50"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                disabled={collectionPage >= Math.ceil(collectionCount / PAGE_SIZE)}
+                onClick={() => {
+                  const next = collectionPage + 1;
+                  setCollectionPage(next);
+                }}
+                className="flex items-center gap-2 rounded-lg border border-[#433422]/15 bg-white/50 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#433422] transition-all hover:border-amber-700/40 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                Next →
+              </button>
+            </div>
+          ) : null}
         </section>
       </div>
 
