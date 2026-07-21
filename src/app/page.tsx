@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { resolveImageUrl } from "@/lib/images";
 import {
   AlertCircle,
   Archive,
@@ -75,6 +76,7 @@ type Filters = {
   country: string;
   manufacturer: string;
   brand: string;
+  serviceGroup: string;
   service: string;
   status: string;
 };
@@ -84,9 +86,36 @@ const DEFAULT_FILTERS: Filters = {
   country: "All",
   manufacturer: "All",
   brand: "All",
+  serviceGroup: "All",
   service: "All",
   status: "All",
 };
+
+const EMERGENCY_SERVICE_GROUPS: string[] = ["Police", "Fire", "Ambulance", "Gendarmerie", "Other"];
+
+function getEmergencyServiceGroup(service: string | null | undefined) {
+  const normalized = (service || "").trim().toLowerCase();
+
+  if (!normalized) return "Other";
+
+  if (/(police|policia|polizia|sheriff|patrol|constabulary|milic|highway patrol|law enforcement|municipal police)/.test(normalized)) {
+    return "Police";
+  }
+
+  if (/(fire|firefighter|fire service|itfaiye|pompier|bomberos)/.test(normalized)) {
+    return "Fire";
+  }
+
+  if (/(ambulance|medical|hospital|paramedic|red cross|rescue|medic)/.test(normalized)) {
+    return "Ambulance";
+  }
+
+  if (/(gendarmerie|gendarmeria|guardia civil|jandarma|carabinieri)/.test(normalized)) {
+    return "Gendarmerie";
+  }
+
+  return "Other";
+}
 
 const STATUS_STYLES: Record<string, { color: string; bg: string; icon: ReactNode }> = {
   "Not Available": { color: "text-rose-800", bg: "bg-rose-100/80", icon: <X size={12} /> },
@@ -111,6 +140,7 @@ function hasActiveFilters(filters: Filters) {
     filters.country !== "All" ||
     filters.manufacturer !== "All" ||
     filters.brand !== "All" ||
+    filters.serviceGroup !== "All" ||
     filters.service !== "All" ||
     filters.status !== "All"
   );
@@ -122,6 +152,7 @@ function normalizeFilters(filters: Filters): Filters {
     country: filters.country,
     manufacturer: filters.manufacturer,
     brand: filters.brand,
+    serviceGroup: filters.serviceGroup,
     service: filters.service,
     status: filters.status,
   };
@@ -139,6 +170,7 @@ function filtersEqual(left: Filters | null, right: Filters | null) {
     normalizedLeft.country === normalizedRight.country &&
     normalizedLeft.manufacturer === normalizedRight.manufacturer &&
     normalizedLeft.brand === normalizedRight.brand &&
+    normalizedLeft.serviceGroup === normalizedRight.serviceGroup &&
     normalizedLeft.service === normalizedRight.service &&
     normalizedLeft.status === normalizedRight.status
   );
@@ -150,6 +182,7 @@ function filtersFromUrl(searchParams: URLSearchParams): Filters {
     country: searchParams.get("country") || "All",
     manufacturer: searchParams.get("manufacturer") || "All",
     brand: searchParams.get("brand") || "All",
+    serviceGroup: searchParams.get("service_group") || "All",
     service: searchParams.get("service") || "All",
     status: searchParams.get("status") || "All",
   };
@@ -167,6 +200,7 @@ function syncUrlWithFilters(filters: Filters | null) {
     if (normalized.country !== "All") url.searchParams.set("country", normalized.country);
     if (normalized.manufacturer !== "All") url.searchParams.set("manufacturer", normalized.manufacturer);
     if (normalized.brand !== "All") url.searchParams.set("brand", normalized.brand);
+    if (normalized.serviceGroup !== "All") url.searchParams.set("service_group", normalized.serviceGroup);
     if (normalized.service !== "All") url.searchParams.set("service", normalized.service);
     if (normalized.status !== "All") url.searchParams.set("status", normalized.status);
   }
@@ -229,7 +263,8 @@ function FilterSelect({
 function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: (vehicle: Vehicle) => void }) {
   const [imageError, setImageError] = useState(false);
   const style = getStatusStyle(vehicle.availability_status);
-  const canShowImage = Boolean(vehicle.model_image?.startsWith("http")) && !imageError;
+  const resolvedImageUrl = resolveImageUrl(vehicle.model_image);
+  const canShowImage = Boolean(resolvedImageUrl) && !imageError;
 
   return (
     <button
@@ -243,7 +278,7 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: (vehicle
         </div>
         {canShowImage ? (
           <Image
-            src={vehicle.model_image!}
+            src={resolvedImageUrl!}
             alt={vehicle.model_name || "Vehicle image"}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -390,7 +425,8 @@ function MiniDetail({ icon, label, value }: { icon: ReactNode; label: string; va
 
 function DetailImage({ vehicle }: { vehicle: Vehicle }) {
   const [imageError, setImageError] = useState(false);
-  const canShowImage = Boolean(vehicle.model_image?.startsWith("http")) && !imageError;
+  const resolvedImageUrl = resolveImageUrl(vehicle.model_image);
+  const canShowImage = Boolean(resolvedImageUrl) && !imageError;
 
   return (
     <div className="relative flex min-h-[500px] w-full items-center justify-center bg-[#e6dbbf] md:w-[60%]">
@@ -398,7 +434,7 @@ function DetailImage({ vehicle }: { vehicle: Vehicle }) {
       {canShowImage ? (
         <div className="relative h-full min-h-[600px] w-full">
           <Image
-            src={vehicle.model_image!}
+            src={resolvedImageUrl!}
             alt={vehicle.model_name || "Vehicle image"}
             fill
             className="object-contain p-12 transition-transform duration-700"
@@ -429,6 +465,13 @@ export default function Home() {
   const [manufacturers, setManufacturers] = useState<string[]>([]);
   const [brands, setBrands] = useState<string[]>([]);
   const [emergencyServices, setEmergencyServices] = useState<string[]>([]);
+  const [emergencyServiceGroups, setEmergencyServiceGroups] = useState<Record<string, string[]>>({
+    Police: [],
+    Fire: [],
+    Ambulance: [],
+    Gendarmerie: [],
+    Other: [],
+  });
   const [statuses, setStatuses] = useState<string[]>([]);
   const [stats, setStats] = useState({ total: 0, countries: 0, brands: 0 });
   const [recentlyAdded, setRecentlyAdded] = useState<Vehicle[]>([]);
@@ -522,14 +565,28 @@ export default function Home() {
         supabase.from("vehicles").select("availability_status").order("availability_status"),
       ]);
 
+      const uniqueServices = Array.from(
+        new Set((serviceData || []).map((row: { emergency_service?: string | null }) => row.emergency_service || "").filter(Boolean)),
+      ).sort((left, right) => left.localeCompare(right));
+
+      const groupedServices = {
+        Police: [] as string[],
+        Fire: [] as string[],
+        Ambulance: [] as string[],
+        Gendarmerie: [] as string[],
+        Other: [] as string[],
+      };
+
+      for (const service of uniqueServices) {
+        const group = getEmergencyServiceGroup(service);
+        groupedServices[group].push(service);
+      }
+
       setCountries((countryData || []).map((row: { name?: string | null }) => row.name || "").filter(Boolean));
       setManufacturers((manufacturerData || []).map((row: { name?: string | null }) => row.name || "").filter(Boolean));
       setBrands((brandData || []).map((row: { name?: string | null }) => row.name || "").filter(Boolean));
-      setEmergencyServices(
-        Array.from(
-          new Set((serviceData || []).map((row: { emergency_service?: string | null }) => row.emergency_service || "").filter(Boolean)),
-        ).sort(),
-      );
+      setEmergencyServices(uniqueServices);
+      setEmergencyServiceGroups(groupedServices);
       setStatuses(
         Array.from(
           new Set((statusData || []).map((row: { availability_status?: string | null }) => row.availability_status || "").filter(Boolean)),
@@ -598,7 +655,18 @@ export default function Home() {
       if (filters.country !== "All") query = query.eq("countries.name", filters.country);
       if (filters.manufacturer !== "All") query = query.eq("manufacturers.name", filters.manufacturer);
       if (filters.brand !== "All") query = query.eq("vehicle_brands.name", filters.brand);
-      if (filters.service !== "All") query = query.eq("emergency_service", filters.service);
+
+      if (filters.serviceGroup !== "All" && filters.service !== "All") {
+        query = query.eq("emergency_service", filters.service);
+      } else if (filters.serviceGroup !== "All") {
+        const serviceMatches = emergencyServiceGroups[filters.serviceGroup] || [];
+        if (serviceMatches.length > 0) {
+          query = query.in("emergency_service", serviceMatches);
+        }
+      } else if (filters.service !== "All") {
+        query = query.eq("emergency_service", filters.service);
+      }
+
       if (filters.status !== "All") query = query.eq("availability_status", filters.status);
 
       const { data, count } = await query;
@@ -629,7 +697,21 @@ export default function Home() {
   }
 
   function updateDraftFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
-    setDraftFilters((current) => ({ ...current, [key]: value }));
+    setDraftFilters((current) => {
+      if (key === "serviceGroup") {
+        const nextGroup = String(value);
+        const groupOptions = emergencyServiceGroups[nextGroup] || [];
+        const nextService = groupOptions.includes(current.service) ? current.service : "All";
+
+        return {
+          ...current,
+          serviceGroup: nextGroup,
+          service: nextService,
+        };
+      }
+
+      return { ...current, [key]: value };
+    });
   }
 
   function applyFilters() {
@@ -651,6 +733,10 @@ export default function Home() {
     setCollectionVehicles([]);
     setCollectionCount(0);
   }
+
+  const localEmergencyServiceOptions = draftFilters.serviceGroup === "All"
+    ? emergencyServices
+    : emergencyServiceGroups[draftFilters.serviceGroup] || [];
 
   const hasDraftFilters = hasActiveFilters(draftFilters);
   const hasAppliedFilters = appliedFilters !== null;
@@ -758,10 +844,11 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
               <FilterSelect label="Country" options={countries} value={draftFilters.country} onChange={(value) => updateDraftFilter("country", value)} />
               <FilterSelect label="Status" options={statuses} value={draftFilters.status} onChange={(value) => updateDraftFilter("status", value)} />
-              <FilterSelect label="Emergency Service" options={emergencyServices} value={draftFilters.service} onChange={(value) => updateDraftFilter("service", value)} />
+              <FilterSelect label="Emergency Group" options={EMERGENCY_SERVICE_GROUPS} value={draftFilters.serviceGroup} onChange={(value) => updateDraftFilter("serviceGroup", value)} />
+              <FilterSelect label="Local Emergency Service" options={localEmergencyServiceOptions} value={draftFilters.service} onChange={(value) => updateDraftFilter("service", value)} />
               <FilterSelect label="Manufacturer" options={manufacturers} value={draftFilters.manufacturer} onChange={(value) => updateDraftFilter("manufacturer", value)} />
               <FilterSelect label="Vehicle Brand" options={brands} value={draftFilters.brand} onChange={(value) => updateDraftFilter("brand", value)} />
             </div>
