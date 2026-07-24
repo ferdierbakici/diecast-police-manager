@@ -682,7 +682,7 @@ export default function Home() {
         .from("vehicles")
         .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
         .in("availability_status", COLLECTION_STATUS_VALUES)
-        .limit(50);
+        .limit(1000);
 
       const sortedVehicles = ((data as Vehicle[]) || [])
         .filter((vehicle) => getStatusDisplayLabel(vehicle.previous_status) !== "Collection")
