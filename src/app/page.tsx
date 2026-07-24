@@ -819,7 +819,7 @@ export default function Home() {
       <StickyHeader show={showHeader} />
 
 
-      <section className="relative flex h-screen w-full items-center justify-center overflow-hidden">
+      <section className="relative flex h-[55vh] min-h-[420px] w-full items-center justify-center overflow-hidden md:h-[65vh]">
         <div className="absolute inset-0">
           <Image
             src="/museum-sign.png"
