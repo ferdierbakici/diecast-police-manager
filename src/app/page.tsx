@@ -122,20 +122,42 @@ function getEmergencyServiceGroup(service: string | null | undefined) {
 }
 
 const STATUS_STYLES: Record<string, { color: string; bg: string; icon: ReactNode }> = {
-  "Not Available": { color: "text-rose-800", bg: "bg-rose-100/80", icon: <X size={12} /> },
+  Missing: { color: "text-rose-800", bg: "bg-rose-100/80", icon: <X size={12} /> },
   Wishlist: { color: "text-orange-800", bg: "bg-orange-100/80", icon: <AlertCircle size={12} /> },
   Ordered: { color: "text-amber-800", bg: "bg-amber-100/80", icon: <Clock size={12} /> },
   "Pre-order": { color: "text-amber-800", bg: "bg-amber-100/80", icon: <Clock size={12} /> },
-  Available: { color: "text-emerald-900", bg: "bg-emerald-100/80", icon: <CheckCircle2 size={12} /> },
-  "Available - Displayed": { color: "text-emerald-900", bg: "bg-emerald-100/80", icon: <CheckCircle2 size={12} /> },
-  "In Stock": { color: "text-emerald-900", bg: "bg-emerald-100/80", icon: <CheckCircle2 size={12} /> },
+  Collection: { color: "text-emerald-900", bg: "bg-emerald-100/80", icon: <CheckCircle2 size={12} /> },
   Unknown: { color: "text-zinc-600", bg: "bg-zinc-100/80", icon: <HelpCircle size={12} /> },
 };
 
+const COLLECTION_STATUS_VALUES = ["Available", "Available - Displayed", "In Stock", "Collection"];
+const MISSING_STATUS_VALUES = ["Not Available", "Missing"];
+
+function getStatusDisplayLabel(status: string | null | undefined) {
+  const normalized = (status || "").trim().toLowerCase();
+
+  if (!normalized) return "Missing";
+  if (COLLECTION_STATUS_VALUES.some((value) => normalized === value.toLowerCase())) return "Collection";
+  if (MISSING_STATUS_VALUES.some((value) => normalized === value.toLowerCase())) return "Missing";
+  if (normalized === "collection") return "Collection";
+  if (normalized === "missing") return "Missing";
+
+  return status || "Unknown";
+}
+
 function getStatusStyle(status: string | null | undefined) {
-  if (!status || status.trim() === "") return STATUS_STYLES.Unknown;
-  const key = Object.keys(STATUS_STYLES).find((item) => status.toLowerCase().includes(item.toLowerCase()));
-  return key ? STATUS_STYLES[key] : STATUS_STYLES["Not Available"];
+  const displayStatus = getStatusDisplayLabel(status);
+  return STATUS_STYLES[displayStatus] || STATUS_STYLES.Unknown;
+}
+
+function getStatusFilterValues(status: string | null | undefined) {
+  const normalized = (status || "").trim();
+
+  if (normalized === "Collection") return COLLECTION_STATUS_VALUES;
+  if (normalized === "Missing") return MISSING_STATUS_VALUES;
+  if (normalized === "All") return [];
+
+  return [normalized];
 }
 
 function hasActiveFilters(filters: Filters) {
@@ -278,7 +300,7 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: (vehicle
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-[#e6dbbf]">
         <div className={`absolute left-4 top-4 z-20 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ${style.bg} ${style.color}`}>
-          {style.icon} {vehicle.availability_status || "Not In Stock"}
+          {style.icon} {getStatusDisplayLabel(vehicle.availability_status)}
         </div>
         {canShowImage ? (
           <Image
@@ -457,9 +479,10 @@ function DetailImage({ vehicle }: { vehicle: Vehicle }) {
 
 function StatusBadge({ status, className }: { status: string | null | undefined; className?: string }) {
   const style = getStatusStyle(status);
+  const label = getStatusDisplayLabel(status);
   return (
     <div className={`${className || "mb-14"} inline-flex items-center gap-4 rounded-md px-6 py-3 text-[12px] font-bold uppercase tracking-wider shadow-sm ${style.bg} ${style.color}`}>
-      {style.icon} {status || "Unknown"}
+      {style.icon} {label}
     </div>
   );
 }
@@ -606,6 +629,7 @@ export default function Home() {
       const uniqueStatuses = Array.from(
         new Set(allServiceRows.map((row) => row.availability_status || "").filter(Boolean)),
       ).sort((left, right) => left.localeCompare(right));
+      const displayStatuses = Array.from(new Set(uniqueStatuses.map((status) => getStatusDisplayLabel(status)))).sort((left, right) => left.localeCompare(right));
 
       const groupedServices: Record<string, string[]> = {
         Police: [],
@@ -628,7 +652,7 @@ export default function Home() {
       setBrands((brandData || []).map((row: { name?: string | null }) => row.name || "").filter(Boolean));
       setEmergencyServices(uniqueServices);
       setEmergencyServiceGroups(groupedServices);
-      setStatuses(uniqueStatuses);
+      setStatuses(displayStatuses);
     } catch (error) {
       console.error("fetchFilterOptions error", error);
     }
@@ -657,12 +681,11 @@ export default function Home() {
       const { data } = await supabase
         .from("vehicles")
         .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
-        .eq("availability_status", "Available")
-        .in("availability_status", ["Available", "Available - Displayed", "In Stock"])
-        .or("previous_status.is.null,previous_status.neq.Available")
+        .in("availability_status", COLLECTION_STATUS_VALUES)
         .limit(50);
 
       const sortedVehicles = ((data as Vehicle[]) || [])
+        .filter((vehicle) => getStatusDisplayLabel(vehicle.previous_status) !== "Collection")
         .sort((a, b) => {
           const aTimestamp = a.status_changed_at || a.created_at || a.updated_at || "";
           const bTimestamp = b.status_changed_at || b.created_at || b.updated_at || "";
@@ -707,7 +730,14 @@ export default function Home() {
         query = query.eq("emergency_service", filters.service);
       }
 
-      if (filters.status !== "All") query = query.eq("availability_status", filters.status);
+      if (filters.status !== "All") {
+        const statusValues = getStatusFilterValues(filters.status);
+        if (statusValues.length === 1) {
+          query = query.eq("availability_status", statusValues[0]);
+        } else if (statusValues.length > 1) {
+          query = query.in("availability_status", statusValues);
+        }
+      }
 
       const { data, count } = await query;
       setCollectionVehicles((data as Vehicle[]) || []);
@@ -928,7 +958,7 @@ export default function Home() {
                   Collection Highlights
                 </p>
                 <h2 className="font-[family-name:var(--font-playfair)] text-3xl font-black leading-none text-[#433422]">
-                  Recently Available
+                  Recently in Collection
                 </h2>
               </div>
             </div>
@@ -946,8 +976,8 @@ export default function Home() {
                 : <div className="col-span-full flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-emerald-700/15 bg-emerald-50/30 px-6 py-16 text-center">
                     <CheckCircle2 size={40} className="text-emerald-700/30" />
                     <div>
-                      <p className="text-sm font-semibold text-emerald-900/60">No available models yet</p>
-                      <p className="text-xs text-emerald-700/70">Models will appear here once they become available</p>
+                      <p className="text-sm font-semibold text-emerald-900/60">No collection models yet</p>
+                      <p className="text-xs text-emerald-700/70">Models will appear here once they enter the collection</p>
                     </div>
                   </div>}
           </div>
