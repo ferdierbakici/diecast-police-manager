@@ -272,7 +272,7 @@ function FilterSelect({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">
+      <label className="flex min-h-[28px] items-end font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase leading-tight tracking-[0.3em] text-[#8a7a64]">
         {label}
       </label>
       <div className="relative">
