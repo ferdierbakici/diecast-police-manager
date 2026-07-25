@@ -12,6 +12,7 @@ import {
   Calendar,
   Car,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Clock,
   DollarSign,
@@ -263,25 +264,35 @@ function FilterSelect({
   onChange: (value: string) => void;
 }) {
   const typeWord = label.split(" ").pop() || "";
-  const pluralWord = typeWord.endsWith("y") ? `${typeWord.slice(0, -1)}ies` : `${typeWord}s`;
+  const pluralWord = typeWord.endsWith("y")
+    ? `${typeWord.slice(0, -1)}ies`
+    : typeWord.endsWith("s")
+      ? `${typeWord}es`
+      : `${typeWord}s`;
 
   return (
     <div className="flex flex-col gap-2">
       <label className="font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">
         {label}
       </label>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full rounded-lg border border-[#433422]/8 bg-white/45 px-4 text-sm font-medium text-[#433422] outline-none transition-all hover:border-amber-600/40 focus:border-amber-600/40"
-      >
-        <option value="All">All {pluralWord}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-12 w-full appearance-none rounded-lg border border-[#433422]/8 bg-white/45 px-4 pr-10 text-sm font-medium text-[#433422] outline-none transition-all hover:border-amber-600/40 focus:border-amber-600/40"
+        >
+          <option value="All">All {pluralWord}</option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={16}
+          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#8a7a64]/60"
+        />
+      </div>
     </div>
   );
 }
@@ -890,14 +901,20 @@ export default function Home() {
         </div>
 
         <section className="mb-16 rounded-[2rem] border border-[#433422]/8 bg-white/35 p-8 shadow-[0_30px_80px_rgba(67,52,34,0.08)] backdrop-blur-sm">
-          <div className="mb-8">
-            <h2 className="font-[family-name:var(--font-playfair)] text-4xl font-black text-[#433422] md:text-5xl">
-              Search Criteria
-            </h2>
+          <div className="mb-8 flex items-center gap-6">
+            <div className="h-10 w-1.5 rounded-full bg-amber-700/80" />
+            <div>
+              <p className="font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.35em] text-[#8a7a64]">
+                Find a Model
+              </p>
+              <h2 className="font-[family-name:var(--font-playfair)] text-2xl font-black leading-tight text-[#433422] md:text-3xl">
+                Search Criteria
+              </h2>
+            </div>
           </div>
 
           <div
-            className="flex flex-col gap-8"
+            className="flex flex-col gap-6"
             onKeyDown={(event) => {
               if (event.key === "Enter" && canApplyFilters) {
                 event.preventDefault();
@@ -936,7 +953,7 @@ export default function Home() {
                   : "No collection query runs until you apply at least one criteria"}
               </span>
               <div className="flex flex-wrap gap-3">
-                <button type="button" onClick={resetFilters} className="rounded-lg border-2 border-rose-700/70 bg-rose-50 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-rose-800 shadow-sm transition-all hover:bg-rose-100 hover:border-rose-800">
+                <button type="button" onClick={resetFilters} className="rounded-lg border-2 border-[#8a6a43]/50 bg-[#8a6a43]/8 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#5c4324] shadow-sm transition-all hover:bg-[#8a6a43]/15 hover:border-[#8a6a43]/70">
                   Reset
                 </button>
                 <button type="button" onClick={applyFilters} disabled={!canApplyFilters} className="rounded-lg bg-[#433422] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-[#5c4b36] disabled:cursor-not-allowed disabled:bg-[#433422]/35 disabled:text-white/70">
