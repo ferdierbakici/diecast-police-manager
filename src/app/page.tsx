@@ -421,7 +421,7 @@ function StickyHeader({ show }: { show: boolean }) {
       <div className="border-b border-[#433422]/8 bg-[#fdf6e3]/90 px-8 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/app_icon.png" alt="Diecast Police Museum" width={36} height={36} className="rounded-full" unoptimized />
+            <Image src="/app_icon.png" alt="Diecast Police Museum" width={40} height={40} className="rounded-lg border border-[#433422]/10 shadow-sm" unoptimized />
             <span className="font-[family-name:var(--font-playfair)] text-lg font-bold tracking-tight text-[#433422]">
               Diecast Police Museum
             </span>
@@ -847,9 +847,9 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-[#fdf6e3]" />
         </div>
-        <div className="absolute top-8 left-1/2 z-30 w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2">
-          <nav className="mx-auto flex flex-wrap items-center justify-center gap-3 rounded-[1.6rem] border border-[#5a4331]/15 bg-[rgba(247,240,228,0.88)] px-3 py-3 shadow-[0_18px_45px_rgba(43,30,20,0.18)] backdrop-blur-md md:gap-4 md:px-4">
-            <Image src="/app_icon.png" alt="Diecast Police Museum" width={36} height={36} className="mr-1 rounded-full" unoptimized />
+        <div className="absolute top-8 left-1/2 z-30 w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2">
+          <nav className="mx-auto flex flex-wrap items-center justify-center gap-2 rounded-[1.6rem] border border-[#5a4331]/15 bg-[rgba(247,240,228,0.88)] px-3 py-3 shadow-[0_18px_45px_rgba(43,30,20,0.18)] backdrop-blur-md md:gap-3 md:px-4">
+            <Image src="/app_icon.png" alt="Diecast Police Museum" width={40} height={40} className="mr-1 rounded-lg border border-[#433422]/10 shadow-sm" unoptimized />
             <Link href="/" className="inline-flex items-center gap-3 rounded-[1rem] border border-[#8c6a43]/20 bg-[linear-gradient(180deg,rgba(111,78,55,0.16),rgba(111,78,55,0.1))] px-5 py-3 text-sm font-bold tracking-[0.01em] text-[#4f311c] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/35 hover:bg-[linear-gradient(180deg,rgba(111,78,55,0.22),rgba(111,78,55,0.14))] hover:text-[#2d1d12]">
               <House size={18} />
               <span>Home</span>
