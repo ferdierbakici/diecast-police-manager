@@ -420,7 +420,12 @@ function StickyHeader({ show }: { show: boolean }) {
     <header className={`fixed left-0 right-0 top-0 z-[200] transition-all duration-300 ${show ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}>
       <div className="border-b border-[#433422]/8 bg-[#fdf6e3]/90 px-8 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Image src="/museum-sign.png" alt="Logo" width={40} height={28} className="rounded" unoptimized />
+          <div className="flex items-center gap-3">
+            <Image src="/app_icon.png" alt="Diecast Police Museum" width={36} height={36} className="rounded-full" unoptimized />
+            <span className="font-[family-name:var(--font-playfair)] text-lg font-bold tracking-tight text-[#433422]">
+              Diecast Police Museum
+            </span>
+          </div>
           <a href="https://www.instagram.com/diecast_police/" target="_blank" rel="noopener noreferrer" className="text-[#433422]/60 hover:text-amber-700 transition-colors">
             <InstagramIcon size={20} />
           </a>
@@ -844,6 +849,7 @@ export default function Home() {
         </div>
         <div className="absolute top-8 left-1/2 z-30 w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2">
           <nav className="mx-auto flex flex-wrap items-center justify-center gap-3 rounded-[1.6rem] border border-[#5a4331]/15 bg-[rgba(247,240,228,0.88)] px-3 py-3 shadow-[0_18px_45px_rgba(43,30,20,0.18)] backdrop-blur-md md:gap-4 md:px-4">
+            <Image src="/app_icon.png" alt="Diecast Police Museum" width={36} height={36} className="mr-1 rounded-full" unoptimized />
             <Link href="/" className="inline-flex items-center gap-3 rounded-[1rem] border border-[#8c6a43]/20 bg-[linear-gradient(180deg,rgba(111,78,55,0.16),rgba(111,78,55,0.1))] px-5 py-3 text-sm font-bold tracking-[0.01em] text-[#4f311c] transition-all hover:-translate-y-0.5 hover:border-[#8c6a43]/35 hover:bg-[linear-gradient(180deg,rgba(111,78,55,0.22),rgba(111,78,55,0.14))] hover:text-[#2d1d12]">
               <House size={18} />
               <span>Home</span>
