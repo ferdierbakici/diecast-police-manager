@@ -43,6 +43,7 @@ type Vehicle = {
   id: number;
   model_name?: string | null;
   model_image?: string | null;
+  model_image_cdn?: string | null;
   availability_status?: string | null;
   previous_status?: string | null;
   status_changed_at?: string | null;
@@ -300,7 +301,7 @@ function FilterSelect({
 function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: (vehicle: Vehicle) => void }) {
   const [imageError, setImageError] = useState(false);
   const style = getStatusStyle(vehicle.availability_status);
-  const resolvedImageUrl = resolveImageUrl(vehicle.model_image);
+  const resolvedImageUrl = resolveImageUrl(vehicle.model_image_cdn || vehicle.model_image);
   const canShowImage = Boolean(resolvedImageUrl) && !imageError;
 
   return (
@@ -467,7 +468,7 @@ function MiniDetail({ icon, label, value }: { icon: ReactNode; label: string; va
 
 function DetailImage({ vehicle }: { vehicle: Vehicle }) {
   const [imageError, setImageError] = useState(false);
-  const resolvedImageUrl = resolveImageUrl(vehicle.model_image);
+  const resolvedImageUrl = resolveImageUrl(vehicle.model_image_cdn || vehicle.model_image);
   const canShowImage = Boolean(resolvedImageUrl) && !imageError;
 
   return (
