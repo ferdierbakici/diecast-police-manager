@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import AuthHeaderSlot from "@/app/components/AuthHeaderSlot";
 
 type Vehicle = {
   id: number;
@@ -427,9 +428,12 @@ function StickyHeader({ show }: { show: boolean }) {
               Diecast Police Museum
             </span>
           </div>
-          <a href="https://www.instagram.com/diecast_police/" target="_blank" rel="noopener noreferrer" className="text-[#433422]/60 hover:text-amber-700 transition-colors">
-            <InstagramIcon size={20} />
-          </a>
+          <div className="flex items-center gap-4">
+            <a href="https://www.instagram.com/diecast_police/" target="_blank" rel="noopener noreferrer" className="text-[#433422]/60 hover:text-amber-700 transition-colors">
+              <InstagramIcon size={20} />
+            </a>
+            <AuthHeaderSlot />
+          </div>
         </div>
       </div>
     </header>
