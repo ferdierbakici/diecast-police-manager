@@ -15,9 +15,6 @@ const securityPolicy = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: process.cwd(),
-  },
   images: {
     unoptimized: true,
     remotePatterns: [

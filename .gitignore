@@ -39,3 +39,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local files - not tracked
+64collector/
+diecast-police-manager/
+docs/
+"Yeni klasör"/
+VEHICULES*.xlsx
+check_images_db.py
+cloudinary-onboarding.js
+collection_data.json
+images_list.txt
+next-dev.log
+public/apple-icon.png
+public/icon-512.png
+public/icon.png
+public/images/
