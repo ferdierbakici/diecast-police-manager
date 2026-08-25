@@ -885,6 +885,8 @@ export default function Home() {
               <InstagramIcon size={18} />
               <span>Instagram</span>
             </a>
+            <div className="mx-1 h-6 w-px bg-[#5a4331]/10 hidden md:block" />
+            <AuthHeaderSlot />
           </nav>
         </div>
         <div className="animate-bounce-slow absolute bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3">
