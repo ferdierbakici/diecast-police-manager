@@ -37,7 +37,7 @@ export default function AuthHeaderSlot() {
         href="/auth/login"
         className="rounded border border-gray-300 px-4 py-1.5 text-sm font-medium hover:bg-gray-50"
       >
-        Giriş Yap
+        Log In
       </Link>
     );
   }

@@ -23,7 +23,7 @@ export default function SignUpPage() {
       setError(result.error);
       return;
     }
-    setMessage('E-postanızı kontrol edin, hesabınızı onaylamanız gerekiyor.');
+    setMessage('Check your email to confirm your account.');
   }
 
   async function handleGoogle() {
@@ -36,7 +36,7 @@ export default function SignUpPage() {
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-4">
-      <h1 className="mb-6 text-2xl font-semibold">Kayıt Ol</h1>
+      <h1 className="mb-6 text-2xl font-semibold">Sign Up</h1>
 
       {message && (
         <p className="mb-4 rounded bg-blue-50 p-3 text-sm text-blue-800">{message}</p>
@@ -56,19 +56,19 @@ export default function SignUpPage() {
           <path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z" />
           <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
         </svg>
-        Google ile devam et
+        Continue with Google
       </button>
 
       <div className="mb-4 flex items-center gap-3">
         <div className="h-px flex-1 bg-gray-200" />
-        <span className="text-xs text-gray-400">veya</span>
+        <span className="text-xs text-gray-400">or</span>
         <div className="h-px flex-1 bg-gray-200" />
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div>
           <label htmlFor="display_name" className="mb-1 block text-sm font-medium">
-            Görünen Ad
+            Display Name
           </label>
           <input
             id="display_name"
@@ -80,7 +80,7 @@ export default function SignUpPage() {
         </div>
         <div>
           <label htmlFor="email" className="mb-1 block text-sm font-medium">
-            E-posta
+            Email
           </label>
           <input
             id="email"
@@ -93,7 +93,7 @@ export default function SignUpPage() {
         </div>
         <div>
           <label htmlFor="password" className="mb-1 block text-sm font-medium">
-            Şifre
+            Password
           </label>
           <input
             id="password"
@@ -110,14 +110,14 @@ export default function SignUpPage() {
           disabled={loading}
           className="mt-2 rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
-          {loading ? 'Kayıt olunuyor...' : 'Kayıt Ol'}
+          {loading ? 'Signing up...' : 'Sign Up'}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-600">
-        Zaten hesabınız var mı?{' '}
+        Already have an account?{' '}
         <Link href="/auth/login" className="font-medium text-blue-600 hover:underline">
-          Giriş yapın
+          Log in
         </Link>
       </p>
     </div>
