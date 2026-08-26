@@ -5,74 +5,36 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { resolveImageUrl } from "@/lib/images";
 import {
-  AlertCircle,
-  Archive,
   BarChart3,
-  Box,
-  Calendar,
   Car,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
-  Clock,
-  DollarSign,
-  ExternalLink,
   Factory,
   Globe,
   House,
-  Hammer,
-  HelpCircle,
   Layers,
-  Locate,
   Mail,
   NotebookText,
   UserRound,
-  MapPin,
-  Paintbrush,
-  Ruler,
   Search,
   ShieldCheck,
-  Star,
   Tag,
   X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import AuthHeaderSlot from "@/app/components/AuthHeaderSlot";
-
-type Vehicle = {
-  id: number;
-  model_name?: string | null;
-  model_image?: string | null;
-  model_image_cdn?: string | null;
-  availability_status?: string | null;
-  previous_status?: string | null;
-  status_changed_at?: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
-  emergency_service?: string | null;
-  scale?: string | null;
-  model_year?: string | number | null;
-  color?: string | null;
-  material?: string | null;
-  model_length?: string | number | null;
-  model_length_unit?: string | null;
-  rating?: string | number | null;
-  acquisition_date?: string | null;
-  market_value?: string | number | null;
-  currency?: string | null;
-  acquired_from?: string | null;
-  showcase_num?: string | null;
-  shelf_num?: string | null;
-  box_num?: string | null;
-  exhibition_type?: string | null;
-  instagram_url?: string | null;
-  website_url?: string | null;
-  notes?: string | null;
-  countries?: { name?: string | null; flag_emoji?: string | null } | null;
-  manufacturers?: { name?: string | null } | null;
-  vehicle_brands?: { name?: string | null } | null;
-};
+import VehicleCard from "@/app/components/VehicleCard";
+import VehicleDetailModal from "@/app/components/VehicleDetailModal";
+import {
+  getStatusDisplayLabel,
+  getStatusStyle,
+  InstagramIcon,
+  COLLECTION_STATUS_VALUES,
+  MISSING_STATUS_VALUES,
+  type Vehicle,
+} from "@/app/components/vehicle-types";
 
 type Filters = {
   search: string;
@@ -122,35 +84,6 @@ function getEmergencyServiceGroup(service: string | null | undefined) {
   }
 
   return "Other";
-}
-
-const STATUS_STYLES: Record<string, { color: string; bg: string; icon: ReactNode }> = {
-  Missing: { color: "text-rose-800", bg: "bg-rose-100/80", icon: <X size={12} /> },
-  Wishlist: { color: "text-orange-800", bg: "bg-orange-100/80", icon: <AlertCircle size={12} /> },
-  Ordered: { color: "text-amber-800", bg: "bg-amber-100/80", icon: <Clock size={12} /> },
-  "Pre-order": { color: "text-amber-800", bg: "bg-amber-100/80", icon: <Clock size={12} /> },
-  Collection: { color: "text-emerald-900", bg: "bg-emerald-100/80", icon: <CheckCircle2 size={12} /> },
-  Unknown: { color: "text-zinc-600", bg: "bg-zinc-100/80", icon: <HelpCircle size={12} /> },
-};
-
-const COLLECTION_STATUS_VALUES = ["Available", "Available - Displayed", "In Stock", "Collection"];
-const MISSING_STATUS_VALUES = ["Not Available", "Missing"];
-
-function getStatusDisplayLabel(status: string | null | undefined) {
-  const normalized = (status || "").trim().toLowerCase();
-
-  if (!normalized) return "Missing";
-  if (COLLECTION_STATUS_VALUES.some((value) => normalized === value.toLowerCase())) return "Collection";
-  if (MISSING_STATUS_VALUES.some((value) => normalized === value.toLowerCase())) return "Missing";
-  if (normalized === "collection") return "Collection";
-  if (normalized === "missing") return "Missing";
-
-  return status || "Unknown";
-}
-
-function getStatusStyle(status: string | null | undefined) {
-  const displayStatus = getStatusDisplayLabel(status);
-  return STATUS_STYLES[displayStatus] || STATUS_STYLES.Unknown;
 }
 
 function getStatusFilterValues(status: string | null | undefined) {
@@ -237,23 +170,6 @@ function syncUrlWithFilters(filters: Filters | null) {
   window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
-const InstagramIcon = ({ size = 20 }: { size?: number }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-  </svg>
-);
-
 function FilterSelect({
   label,
   options,
@@ -299,78 +215,6 @@ function FilterSelect({
   );
 }
 
-function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: (vehicle: Vehicle) => void }) {
-  const [imageError, setImageError] = useState(false);
-  const style = getStatusStyle(vehicle.availability_status);
-  const resolvedImageUrl = resolveImageUrl(vehicle.model_image_cdn || vehicle.model_image);
-  const canShowImage = Boolean(resolvedImageUrl) && !imageError;
-
-  return (
-    <button
-      type="button"
-      onClick={() => onClick(vehicle)}
-      className="group flex w-full flex-col overflow-hidden rounded-xl border border-[#433422]/8 bg-white/30 text-left transition-all duration-300 hover:-translate-y-1 hover:border-amber-600/30 hover:shadow-lg"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#e6dbbf]">
-        <div className={`absolute left-4 top-4 z-20 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ${style.bg} ${style.color}`}>
-          {style.icon} {getStatusDisplayLabel(vehicle.availability_status)}
-        </div>
-        {canShowImage ? (
-          <Image
-            src={resolvedImageUrl!}
-            alt={vehicle.model_name || "Vehicle image"}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center text-[#433422]/20">
-            <Car size={48} />
-            <span className="mt-3 text-[10px] font-bold uppercase tracking-[0.3em]">{imageError ? "No Image" : "Loading"}</span>
-          </div>
-        )}
-        <div className="absolute bottom-3 right-3 rounded-md bg-white/80 px-3 py-1.5 font-[family-name:var(--font-mono)] text-[10px] font-bold tracking-wider text-[#8a7a64]">
-          #{vehicle.id}
-        </div>
-      </div>
-
-      <div className="flex flex-1 flex-col justify-between p-6">
-        <div>
-          <h3 className="mb-4 font-[family-name:var(--font-playfair)] text-lg font-black leading-tight text-[#433422] transition-colors group-hover:text-amber-700">
-            {vehicle.model_name}
-          </h3>
-          <div className="mb-6 space-y-2">
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-amber-700">
-              <MapPin size={11} />
-              <span>{vehicle.countries?.flag_emoji} {vehicle.countries?.name || "Unknown country"}</span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] font-medium text-[#433422]/70">
-              <ShieldCheck size={11} className="text-red-700/60" />
-              <span>{vehicle.emergency_service || "Unknown service"}</span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] font-medium text-[#8a7a64]">
-              <Tag size={11} />
-              <span>{vehicle.manufacturers?.name || "Unknown maker"}</span>
-            </div>
-          </div>
-        </div>
-        <div className="mt-auto flex items-center justify-between border-t border-[#433422]/5 pt-4">
-          <div className="flex flex-col">
-            <span className="font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-wider text-[#8a7a64]">
-              {vehicle.scale || "Scale n/a"}
-            </span>
-            <span className="max-w-[140px] truncate text-[11px] font-semibold text-amber-800">
-              {vehicle.vehicle_brands?.name || ""}
-            </span>
-          </div>
-          <div className="rounded-lg bg-[#433422]/5 p-2.5 transition-all group-hover:bg-amber-700 group-hover:text-white">
-            <ChevronRight size={16} />
-          </div>
-        </div>
-      </div>
-    </button>
-  );
-}
 
 function StatCard({ icon, label, value, color }: { icon: ReactNode; label: string; value: number; color: string }) {
   return (
@@ -440,73 +284,6 @@ function StickyHeader({ show }: { show: boolean }) {
   );
 }
 
-function DetailRow({ icon, label, value }: { icon: ReactNode; label: string; value: string | null | undefined }) {
-  return (
-    <div className="flex items-center gap-6 rounded-lg p-3 transition-all hover:bg-black/3">
-      <div className="rounded-lg border border-[#433422]/5 bg-white/40 p-4 text-amber-800/60">{icon}</div>
-      <div>
-        <div className="mb-1 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a7a64]">
-          {label}
-        </div>
-        <div className="text-lg font-semibold tracking-tight text-[#433422]">{value || "-"}</div>
-      </div>
-    </div>
-  );
-}
-
-function MiniDetail({ icon, label, value }: { icon: ReactNode; label: string; value: string | null | undefined }) {
-  if (!value) return null;
-
-  return (
-    <div className="flex items-center gap-4">
-      <div className="rounded-lg border border-[#433422]/5 bg-white/40 p-3 text-amber-900/40">{icon}</div>
-      <div>
-        <div className="mb-1 font-[family-name:var(--font-barlow)] text-[9px] font-bold uppercase tracking-wide text-[#8a7a64]">
-          {label}
-        </div>
-        <div className="text-sm font-semibold tracking-tight text-[#433422]">{value}</div>
-      </div>
-    </div>
-  );
-}
-
-function DetailImage({ vehicle }: { vehicle: Vehicle }) {
-  const [imageError, setImageError] = useState(false);
-  const resolvedImageUrl = resolveImageUrl(vehicle.model_image_cdn || vehicle.model_image);
-  const canShowImage = Boolean(resolvedImageUrl) && !imageError;
-
-  return (
-    <div className="relative flex min-h-[500px] w-full items-center justify-center bg-[#e6dbbf] md:w-[60%]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(67,52,34,0.03)_0%,_transparent_75%)]" />
-      {canShowImage ? (
-        <div className="relative h-full min-h-[600px] w-full">
-          <Image
-            src={resolvedImageUrl!}
-            alt={vehicle.model_name || "Vehicle image"}
-            fill
-            className="object-contain p-12 transition-transform duration-700"
-            onError={() => setImageError(true)}
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center text-[#433422] opacity-30">
-          <Car size={120} />
-          <span className="mt-8 text-xs font-bold uppercase tracking-[0.3em]">{imageError ? "No Image" : "Loading"}</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function StatusBadge({ status, className }: { status: string | null | undefined; className?: string }) {
-  const style = getStatusStyle(status);
-  const label = getStatusDisplayLabel(status);
-  return (
-    <div className={`${className || "mb-14"} inline-flex items-center gap-4 rounded-md px-6 py-3 text-[12px] font-bold uppercase tracking-wider shadow-sm ${style.bg} ${style.color}`}>
-      {style.icon} {label}
-    </div>
-  );
-}
 
 export default function Home() {
   const [countries, setCountries] = useState<string[]>([]);
@@ -1148,92 +925,7 @@ export default function Home() {
       </footer>
 
       {selectedVehicle ? (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/50 p-6 backdrop-blur-sm" onClick={() => setSelectedVehicle(null)}>
-          <div className="animate-modal-in relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-[#433422]/10 bg-[#faf4e0] shadow-2xl md:flex-row" onClick={(event) => event.stopPropagation()}>
-            <button type="button" className="absolute right-6 top-6 z-40 rounded-full border border-black/10 bg-white/60 p-3 text-black shadow-xl transition-all hover:bg-black hover:text-white" onClick={() => setSelectedVehicle(null)}>
-              <X size={24} />
-            </button>
-
-            <DetailImage vehicle={selectedVehicle} />
-
-            <div className="relative flex w-full flex-col overflow-y-auto border-l border-[#433422]/5 bg-[#faf4e0] p-10 md:w-[40%]">
-              <div className="mb-16 flex-1">
-                <div className="flex items-center justify-between mb-12">
-                  <StatusBadge status={selectedVehicle.availability_status} className="mb-0" />
-                  <div className="rounded-lg border border-[#433422]/10 bg-white/40 px-4 py-2 font-[family-name:var(--font-mono)] text-[11px] font-black tracking-wider text-[#433422] shadow-sm">
-                    MODEL ID: #{selectedVehicle.id}
-                  </div>
-                </div>
-                <div className="mb-4 flex items-center gap-4">
-                  <span className="text-3xl">{selectedVehicle.countries?.flag_emoji}</span>
-                  <span className="font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">Origin</span>
-                </div>
-                <h2 className="mb-8 font-[family-name:var(--font-playfair)] text-3xl font-black leading-tight text-[#433422]">
-                  {selectedVehicle.model_name}
-                </h2>
-                <div className="mt-12 flex flex-wrap gap-4">
-                  <span className="rounded-lg bg-black/5 px-5 py-2 font-[family-name:var(--font-mono)] text-[11px] font-bold tracking-wider text-[#433422]">
-                    Scale {selectedVehicle.scale}
-                  </span>
-                  {selectedVehicle.model_year ? <span className="rounded-lg border border-amber-600/10 bg-amber-600/10 px-5 py-2 text-[11px] font-bold tracking-wider text-amber-800">Arrived {selectedVehicle.model_year}</span> : null}
-                </div>
-                <div className="mt-16 grid grid-cols-1 gap-6">
-                  <DetailRow icon={<Globe size={20} className="text-amber-700" />} label="Country" value={selectedVehicle.countries?.name} />
-                  <DetailRow icon={<ShieldCheck size={20} className="text-rose-800" />} label="Agency" value={selectedVehicle.emergency_service} />
-                  <DetailRow icon={<Tag size={20} className="text-zinc-600" />} label="Manufacturer" value={selectedVehicle.manufacturers?.name || "Unknown"} />
-                  <DetailRow icon={<Car size={20} className="text-amber-800" />} label="Brand" value={selectedVehicle.vehicle_brands?.name || "Unknown"} />
-                </div>
-                <div className="mt-16 border-t border-[#433422]/5 pt-8">
-                  <h4 className="mb-8 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">Display Info</h4>
-                  <div className="grid grid-cols-2 gap-6">
-                    <MiniDetail icon={<Archive size={16} />} label="Showcase" value={selectedVehicle.showcase_num} />
-                    <MiniDetail icon={<Locate size={16} />} label="Shelf" value={selectedVehicle.shelf_num} />
-                    <MiniDetail icon={<Box size={16} />} label="Box" value={selectedVehicle.box_num} />
-                    <MiniDetail icon={<Tag size={16} />} label="Exhibit Type" value={selectedVehicle.exhibition_type} />
-                  </div>
-                </div>
-                <div className="mt-14 border-t border-[#433422]/5 pt-8">
-                  <h4 className="mb-8 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">Details</h4>
-                  <div className="grid grid-cols-2 gap-6">
-                    <MiniDetail icon={<Paintbrush size={16} />} label="Primary Color" value={selectedVehicle.color} />
-                    <MiniDetail icon={<Hammer size={16} />} label="Material" value={selectedVehicle.material} />
-                    <MiniDetail icon={<Ruler size={16} />} label="Model Length" value={selectedVehicle.model_length ? `${selectedVehicle.model_length} ${selectedVehicle.model_length_unit || "cm"}` : null} />
-                    <MiniDetail icon={<Star size={16} className="text-amber-600" />} label="Rating" value={selectedVehicle.rating ? `${selectedVehicle.rating} / 5` : "Unrated"} />
-                  </div>
-                </div>
-                <div className="mt-14 border-t border-[#433422]/5 pt-8">
-                  <h4 className="mb-8 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">Purchase Info</h4>
-                  <div className="grid grid-cols-1 gap-6">
-                    <MiniDetail icon={<Calendar size={16} />} label="Added" value={selectedVehicle.acquisition_date} />
-                    <MiniDetail icon={<DollarSign size={16} />} label="Price" value={selectedVehicle.market_value ? `${selectedVehicle.market_value} ${selectedVehicle.currency || "USD"}` : null} />
-                    <MiniDetail icon={<Factory size={16} />} label="Seller" value={selectedVehicle.acquired_from} />
-                  </div>
-                </div>
-                {selectedVehicle.notes ? (
-                  <div className="relative mt-16 rounded-lg border border-[#433422]/5 border-l-4 border-l-amber-600/20 bg-white/20 p-6 text-base italic leading-relaxed text-[#8a7a64] transition-all hover:border-l-amber-600">
-                    <span className="absolute -top-3 left-8 bg-[#faf4e0] px-4 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-wider text-[#8a7a64]">Notes</span>
-                    <span>&quot;{selectedVehicle.notes}&quot;</span>
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="flex gap-3">
-                {selectedVehicle.instagram_url ? (
-                  <a href={selectedVehicle.instagram_url} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center justify-center gap-4 rounded-lg bg-amber-900 px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-amber-800">
-                    <InstagramIcon size={18} />
-                    <span>IG Profile</span>
-                  </a>
-                ) : null}
-                {selectedVehicle.website_url ? (
-                  <a href={selectedVehicle.website_url} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center justify-center gap-4 rounded-lg bg-amber-700 px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-amber-600">
-                    <ExternalLink size={18} />
-                    <span>Official Link</span>
-                  </a>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </div>
+        <VehicleDetailModal vehicle={selectedVehicle} onClose={() => setSelectedVehicle(null)} />
       ) : null}
     </div>
   );
