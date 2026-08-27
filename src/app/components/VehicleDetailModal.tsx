@@ -10,6 +10,7 @@ import { resolveImageUrl } from "@/lib/images";
 import {
   getStatusDisplayLabel, getStatusStyle, InstagramIcon, type Vehicle,
 } from "@/app/components/vehicle-types";
+import CollectionWishlistButtons from "@/app/components/CollectionWishlistButtons";
 
 function DetailRow({ icon, label, value }: { icon: ReactNode; label: string; value: string | null | undefined }) {
   return (
@@ -82,9 +83,11 @@ function StatusBadge({ status, className }: { status: string | null | undefined;
 export default function VehicleDetailModal({
   vehicle,
   onClose,
+  onStatusChange,
 }: {
   vehicle: Vehicle;
   onClose: () => void;
+  onStatusChange?: () => void;
 }) {
   return (
     <div
@@ -129,6 +132,9 @@ export default function VehicleDetailModal({
                   Arrived {vehicle.model_year}
                 </span>
               ) : null}
+            </div>
+            <div className="mt-8">
+              <CollectionWishlistButtons vehicleId={vehicle.id} onChange={onStatusChange} />
             </div>
             <div className="mt-16 grid grid-cols-1 gap-6">
               <DetailRow icon={<Globe size={20} className="text-amber-700" />} label="Country" value={vehicle.countries?.name} />

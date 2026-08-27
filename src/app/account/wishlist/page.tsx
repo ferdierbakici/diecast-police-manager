@@ -14,37 +14,39 @@ export default function MyWishlistPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) {
-        router.push("/auth/login");
-        return;
-      }
-
-      const { data: statusRows } = await supabase
-        .from("user_model_status")
-        .select("vehicle_id")
-        .eq("user_id", userData.user.id)
-        .eq("status", "wishlist");
-
-      const vehicleIds = (statusRows ?? []).map((row) => row.vehicle_id);
-
-      if (vehicleIds.length === 0) {
-        setVehicles([]);
-        setLoading(false);
-        return;
-      }
-
-      const { data: vehicleRows } = await supabase
-        .from("vehicles")
-        .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
-        .in("id", vehicleIds);
-
-      setVehicles((vehicleRows as Vehicle[]) ?? []);
-      setLoading(false);
+  async function load() {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      router.push("/auth/login");
+      return;
     }
+
+    const { data: statusRows } = await supabase
+      .from("user_model_status")
+      .select("vehicle_id")
+      .eq("user_id", userData.user.id)
+      .eq("status", "wishlist");
+
+    const vehicleIds = (statusRows ?? []).map((row) => row.vehicle_id);
+
+    if (vehicleIds.length === 0) {
+      setVehicles([]);
+      setLoading(false);
+      return;
+    }
+
+    const { data: vehicleRows } = await supabase
+      .from("vehicles")
+      .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
+      .in("id", vehicleIds);
+
+    setVehicles((vehicleRows as Vehicle[]) ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   return (
@@ -74,7 +76,11 @@ export default function MyWishlistPage() {
       )}
 
       {selectedVehicle ? (
-        <VehicleDetailModal vehicle={selectedVehicle} onClose={() => setSelectedVehicle(null)} />
+        <VehicleDetailModal
+          vehicle={selectedVehicle}
+          onClose={() => setSelectedVehicle(null)}
+          onStatusChange={load}
+        />
       ) : null}
     </div>
   );
