@@ -5,13 +5,16 @@ import { Car, ChevronRight, MapPin, ShieldCheck, Tag } from "lucide-react";
 import Image from "next/image";
 import { resolveImageUrl } from "@/lib/images";
 import { getStatusDisplayLabel, getStatusStyle, type Vehicle } from "@/app/components/vehicle-types";
+import CollectionWishlistIcons from "@/app/components/CollectionWishlistIcons";
 
 export default function VehicleCard({
   vehicle,
   onClick,
+  onStatusChange,
 }: {
   vehicle: Vehicle;
   onClick: (vehicle: Vehicle) => void;
+  onStatusChange?: () => void;
 }) {
   const [imageError, setImageError] = useState(false);
   const style = getStatusStyle(vehicle.availability_status);
@@ -19,15 +22,23 @@ export default function VehicleCard({
   const canShowImage = Boolean(resolvedImageUrl) && !imageError;
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onClick(vehicle)}
-      className="group flex w-full flex-col overflow-hidden rounded-xl border border-[#433422]/8 bg-white/30 text-left transition-all duration-300 hover:-translate-y-1 hover:border-amber-600/30 hover:shadow-lg"
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick(vehicle);
+        }
+      }}
+      className="group flex w-full cursor-pointer flex-col overflow-hidden rounded-xl border border-[#433422]/8 bg-white/30 text-left transition-all duration-300 hover:-translate-y-1 hover:border-amber-600/30 hover:shadow-lg"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-[#e6dbbf]">
         <div className={`absolute left-4 top-4 z-20 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ${style.bg} ${style.color}`}>
           {style.icon} {getStatusDisplayLabel(vehicle.availability_status)}
         </div>
+        <CollectionWishlistIcons vehicleId={vehicle.id} onChange={onStatusChange} />
         {canShowImage ? (
           <Image
             src={resolvedImageUrl!}
@@ -81,6 +92,6 @@ export default function VehicleCard({
           </div>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
