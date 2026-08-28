@@ -70,7 +70,7 @@ export default function MyWishlistPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {vehicles.map((vehicle) => (
-            <VehicleCard key={vehicle.id} vehicle={vehicle} onClick={setSelectedVehicle} />
+            <VehicleCard key={vehicle.id} vehicle={vehicle} onClick={setSelectedVehicle} onStatusChange={load} />
           ))}
         </div>
       )}
