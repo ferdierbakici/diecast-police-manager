@@ -37,7 +37,7 @@ export default function MyWishlistPage() {
 
     const { data: vehicleRows } = await supabase
       .from("vehicles")
-      .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
+      .select("*, countries(*), vehicle_brands(*), manufacturers(*), series(*)")
       .in("id", vehicleIds);
 
     setVehicles((vehicleRows as Vehicle[]) ?? []);
