@@ -141,6 +141,12 @@ export default function VehicleDetailModal({
               <DetailRow icon={<ShieldCheck size={20} className="text-rose-800" />} label="Agency" value={vehicle.emergency_service} />
               <DetailRow icon={<Tag size={20} className="text-zinc-600" />} label="Manufacturer" value={vehicle.manufacturers?.name || "Unknown"} />
               <DetailRow icon={<Car size={20} className="text-amber-800" />} label="Brand" value={vehicle.vehicle_brands?.name || "Unknown"} />
+              {vehicle.series?.name ? (
+                <DetailRow icon={<Archive size={20} className="text-amber-800" />} label="Series" value={vehicle.series.name} />
+              ) : null}
+              {vehicle.model_code ? (
+                <DetailRow icon={<Tag size={20} className="text-amber-800" />} label="Model Code" value={vehicle.model_code} />
+              ) : null}
             </div>
             <div className="mt-16 border-t border-[#433422]/5 pt-8">
               <h4 className="mb-8 font-[family-name:var(--font-barlow)] text-[10px] font-bold uppercase tracking-[0.3em] text-[#8a7a64]">Display Info</h4>
@@ -197,7 +203,7 @@ export default function VehicleDetailModal({
                 className="flex flex-1 items-center justify-center gap-4 rounded-lg bg-amber-900 px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-amber-800"
               >
                 <InstagramIcon size={18} />
-                <span>IG Profile</span>
+                <span>Instagram</span>
               </a>
             ) : null}
             {vehicle.website_url ? (
@@ -208,7 +214,7 @@ export default function VehicleDetailModal({
                 className="flex flex-1 items-center justify-center gap-4 rounded-lg bg-amber-700 px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-amber-600"
               >
                 <ExternalLink size={18} />
-                <span>Official Link</span>
+                <span>Webpage</span>
               </a>
             ) : null}
           </div>

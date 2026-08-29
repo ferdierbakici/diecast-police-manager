@@ -461,7 +461,7 @@ export default function Home() {
     try {
       const { data } = await supabase
         .from("vehicles")
-        .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
+        .select("*, countries(*), vehicle_brands(*), manufacturers(*), series(*)")
         .order("id", { ascending: false })
         .limit(10);
 
@@ -478,7 +478,7 @@ export default function Home() {
     try {
       const { data } = await supabase
         .from("vehicles")
-        .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
+        .select("*, countries(*), vehicle_brands(*), manufacturers(*), series(*)")
         .in("availability_status", COLLECTION_STATUS_VALUES)
         .limit(1000);
 
@@ -553,7 +553,7 @@ export default function Home() {
     try {
       const { data, error } = await supabase
         .from("vehicles")
-        .select("*, countries(*), vehicle_brands(*), manufacturers(*)")
+        .select("*, countries(*), vehicle_brands(*), manufacturers(*), series(*)")
         .eq("id", id)
         .single();
 

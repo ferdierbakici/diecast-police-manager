@@ -30,9 +30,11 @@ export type Vehicle = {
   instagram_url?: string | null;
   website_url?: string | null;
   notes?: string | null;
+  model_code?: string | null;
   countries?: { name?: string | null; flag_emoji?: string | null } | null;
   manufacturers?: { name?: string | null } | null;
   vehicle_brands?: { name?: string | null } | null;
+  series?: { name?: string | null } | null;
 };
 
 export const STATUS_STYLES: Record<string, { color: string; bg: string; icon: ReactNode }> = {
