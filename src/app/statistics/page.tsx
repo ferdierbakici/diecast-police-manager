@@ -17,6 +17,8 @@ import {
   AlertCircle
 } from "lucide-react";
 
+import { getStatusDisplayLabel } from "@/app/components/vehicle-types";
+
 type Vehicle = {
   id: number;
   availability_status?: string | null;
@@ -121,26 +123,33 @@ export default function StatisticsPage() {
         // Country
         const cData = countryMap.get(countryName) || { total: 0, unavailable: 0, flag: v.countries?.flag_emoji || "🏳️" };
         cData.total++;
-        if (v.availability_status !== "Available") {
+        if (getStatusDisplayLabel(v.availability_status) !== "Collection") {
           cData.unavailable++;
         }
         countryMap.set(countryName, cData);
 
         // Service - Grouping logic
+        // emergency_service is stored as "ServiceType — AgencyName" (see
+        // EmergencyServiceService.format_display in the desktop app).
+        // Group by the ServiceType segment only, not the full string -
+        // otherwise every distinct agency (e.g. "Civil Protection — AFAD",
+        // "Civil Protection — DSNS") becomes its own bucket instead of
+        // rolling up under one "Civil Protection" heading.
         let rawService = v.emergency_service || "Other";
+        const serviceTypeSegment = rawService.split(" — ")[0].trim() || "Other";
         let service = "Other";
-        
-        const lowerService = rawService.toLowerCase();
-        if (lowerService.includes("police") || lowerService.includes("polizia") || lowerService.includes("policia") || lowerService.includes("milic") || lowerService.includes("gendarmerie") || lowerService.includes("carabinieri") || lowerService.includes("sheriff") || lowerService.includes("highway patrol")) {
+
+        const lowerServiceType = serviceTypeSegment.toLowerCase();
+        if (lowerServiceType.includes("police") || lowerServiceType.includes("gendarmerie") || lowerServiceType.includes("sheriff") || lowerServiceType.includes("highway patrol")) {
           service = "Police";
-        } else if (lowerService.includes("fire") || lowerService.includes("pompier") || lowerService.includes("itfaiye")) {
+        } else if (lowerServiceType.includes("fire")) {
           service = "Fire";
-        } else if (lowerService.includes("ambulance") || lowerService.includes("medical") || lowerService.includes("hospital") || lowerService.includes("red cross") || lowerService.includes("paramedic") || lowerService.includes("crveni krst")) {
+        } else if (lowerServiceType.includes("ambulance")) {
           service = "Ambulance";
-        } else if (lowerService.includes("coast guard") || lowerService.includes("border") || lowerService.includes("customs") || lowerService.includes("military")) {
+        } else if (lowerServiceType.includes("coast guard") || lowerServiceType.includes("border") || lowerServiceType.includes("customs") || lowerServiceType.includes("military")) {
           service = "Special / Military";
         } else {
-          service = rawService; // Fallback to raw if it doesn't match common patterns but isn't "Other"
+          service = serviceTypeSegment; // clean category name, agency name stripped
         }
 
         serviceMap.set(service, (serviceMap.get(service) || 0) + 1);
