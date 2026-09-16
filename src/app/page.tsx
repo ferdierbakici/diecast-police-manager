@@ -476,15 +476,31 @@ export default function Home() {
   async function fetchRecentlyAvailable() {
     setRecentlyAvailableLoading(true);
     try {
-      const { data } = await supabase
-        .from("vehicles")
-        .select("*, countries(*), vehicle_brands(*), manufacturers(*), series(*)")
-        .in("availability_status", COLLECTION_STATUS_VALUES)
-        .order("status_changed_at", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(50);
+      let allCollectionVehicles: Vehicle[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMore = true;
 
-      const sortedVehicles = ((data as Vehicle[]) || [])
+      while (hasMore) {
+        const { data } = await supabase
+          .from("vehicles")
+          .select("*, countries(*), vehicle_brands(*), manufacturers(*), series(*)")
+          .in("availability_status", COLLECTION_STATUS_VALUES)
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (data && data.length > 0) {
+          allCollectionVehicles = allCollectionVehicles.concat(data as Vehicle[]);
+          if (data.length < pageSize) {
+            hasMore = false;
+          } else {
+            page++;
+          }
+        } else {
+          hasMore = false;
+        }
+      }
+
+      const sortedVehicles = allCollectionVehicles
         .filter((vehicle) => getStatusDisplayLabel(vehicle.previous_status) !== "Collection")
         .sort((a, b) => {
           const aTimestamp = a.status_changed_at || a.created_at || a.updated_at || "";
