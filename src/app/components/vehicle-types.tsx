@@ -31,6 +31,8 @@ export type Vehicle = {
   website_url?: string | null;
   notes?: string | null;
   model_code?: string | null;
+  is_customized?: boolean | number | string | null;
+  customizer_name?: string | null;
   countries?: { name?: string | null; flag_emoji?: string | null } | null;
   manufacturers?: { name?: string | null } | null;
   vehicle_brands?: { name?: string | null } | null;

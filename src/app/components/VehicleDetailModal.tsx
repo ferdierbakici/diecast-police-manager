@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import {
   Archive, Box, Calendar, Car, DollarSign, ExternalLink, Factory, Globe,
-  Hammer, Locate, Paintbrush, Ruler, ShieldCheck, Star, Tag, X,
+  Hammer, Locate, Paintbrush, Ruler, ShieldCheck, Star, Tag, Wrench, X,
 } from "lucide-react";
 import Image from "next/image";
 import { resolveImageUrl } from "@/lib/images";
@@ -78,6 +78,13 @@ function StatusBadge({ status, className }: { status: string | null | undefined;
       {style.icon} {label}
     </div>
   );
+}
+
+function getCustomizedLabel(vehicle: Vehicle): string | null {
+  const { is_customized, customizer_name } = vehicle;
+  const isCustomized = is_customized === true || is_customized === 1 || is_customized === "1" || is_customized === "true";
+  if (!isCustomized) return null;
+  return customizer_name ? `Yes · ${customizer_name}` : "Yes";
 }
 
 export default function VehicleDetailModal({
@@ -162,6 +169,7 @@ export default function VehicleDetailModal({
               <div className="grid grid-cols-2 gap-6">
                 <MiniDetail icon={<Paintbrush size={16} />} label="Primary Color" value={vehicle.color} />
                 <MiniDetail icon={<Hammer size={16} />} label="Material" value={vehicle.material} />
+                <MiniDetail icon={<Wrench size={16} className="text-amber-600" />} label="Customized" value={getCustomizedLabel(vehicle)} />
                 <MiniDetail
                   icon={<Ruler size={16} />}
                   label="Model Length"
