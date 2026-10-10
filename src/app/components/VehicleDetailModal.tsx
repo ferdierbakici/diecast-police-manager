@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import {
   Archive, Box, Calendar, Car, DollarSign, ExternalLink, Factory, Globe,
-  Hammer, Locate, Paintbrush, Ruler, ShieldCheck, Star, Tag, Wrench, X,
+  Hammer, Locate, Paintbrush, Pencil, Ruler, ShieldCheck, Star, Tag, Wrench, X,
 } from "lucide-react";
 import Image from "next/image";
 import { resolveImageUrl } from "@/lib/images";
@@ -225,6 +225,18 @@ export default function VehicleDetailModal({
                 <span>Webpage</span>
               </a>
             ) : null}
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <a
+              href="https://www.diecast-police.com/contact"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 rounded-full bg-red-700 px-7 py-3 text-sm font-bold tracking-wide text-white shadow-md transition-all hover:bg-red-800 hover:shadow-lg"
+            >
+              <Pencil size={16} />
+              <span>Help us improve</span>
+            </a>
           </div>
         </div>
       </div>
