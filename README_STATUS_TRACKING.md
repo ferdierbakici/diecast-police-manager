@@ -73,7 +73,7 @@ python migrate_status_tracking.py ./data/collection.db
 
 ```bash
 # 1. Supabase Dashboard'a git:
-# https://app.supabase.com/projects/yzvsfzkksmvwaseudkrq/sql/new
+# https://app.supabase.com/projects/eojfccviyaambajvlsqu/sql/new
 
 # 2. SQL Editor'de şunu çalıştır:
 ALTER TABLE vehicles

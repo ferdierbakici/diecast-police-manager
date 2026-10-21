@@ -18,11 +18,20 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
     remotePatterns: [
+      // Aktif Supabase projesi (veri + storage).
+      // NOT: eski proje "yzvsfzkksmvwaseudkrq" silinmis durumda (DNS cozumlenmiyor).
       {
         protocol: "https",
-        hostname: "yzvsfzkksmvwaseudkrq.supabase.co",
+        hostname: "eojfccviyaambajvlsqu.supabase.co",
         port: "",
         pathname: "/storage/v1/object/public/**",
+      },
+      // Arac gorselleri artik Cloudinary uzerinden geliyor.
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
       },
     ],
   },

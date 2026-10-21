@@ -96,7 +96,7 @@ python migrate_status_tracking.py ./data/collection.db --verify-only
 ### Adım 2: Web Uygulaması (Supabase)
 
 #### Option A: Supabase Dashboard (Kolay)
-1. https://app.supabase.com/projects/yzvsfzkksmvwaseudkrq/sql/new aç
+1. https://app.supabase.com/projects/eojfccviyaambajvlsqu/sql/new aç
 2. `supabase_migration_status_tracking.sql` dosyasındaki SQL'i kopyala
 3. Yapıştır ve "Run" tuşuna bas ✅
 
