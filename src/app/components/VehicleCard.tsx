@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { Car, ChevronRight, MapPin, ShieldCheck, Tag } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { resolveImageUrl } from "@/lib/images";
+import { vehicleSlug } from "@/lib/vehicle-slug";
 import { getStatusDisplayLabel, getStatusStyle, type Vehicle } from "@/app/components/vehicle-types";
 import CollectionWishlistIcons from "@/app/components/CollectionWishlistIcons";
 
@@ -61,7 +63,17 @@ export default function VehicleCard({
       <div className="flex flex-1 flex-col justify-between p-6">
         <div>
           <h3 className="mb-4 font-[family-name:var(--font-playfair)] text-lg font-black leading-tight text-[#433422] transition-colors group-hover:text-amber-700">
-            {vehicle.model_name}
+            {/* Gerçek bağlantı: arama motorları href'i takip eder.
+                Normal tıklamada modal açılır, Ctrl/Cmd+tık veya yeni sekmede model sayfası açılır. */}
+            <Link
+              href={`/models/${vehicleSlug(vehicle)}`}
+              onClick={(event) => {
+                const plainClick = event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+                if (plainClick) event.preventDefault();
+              }}
+            >
+              {vehicle.model_name}
+            </Link>
           </h3>
           <div className="mb-6 space-y-2">
             <div className="flex items-center gap-2 text-[11px] font-semibold text-amber-700">
