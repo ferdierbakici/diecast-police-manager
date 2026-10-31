@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  // Göreli yolları (canonical, og:image...) gerçek alan adına çevirir
+  metadataBase: new URL("https://www.diecast-police.com"),
   title: "Diecast Police Museum | Emergency Vehicle Collection Archive",
   description: "Official online archive of the Diecast Police Museum collection. Explore a vast collection of emergency vehicles, police cars, and fire trucks from around the world.",
   keywords: ["diecast police museum", "diecastpolice", "emergency diecast", "police car models", "diecast collection", "model police cars", "itfaiye modelleri", "polis arabası koleksiyonu", "diecast car archive"],
@@ -9,7 +11,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Diecast Police Museum | Emergency Vehicle Collection Archive",
     description: "Official online archive of the Diecast Police Museum collection.",
-    url: "https://diecastpolice.vercel.app",
     siteName: "Diecast Police Museum",
     images: [
       {

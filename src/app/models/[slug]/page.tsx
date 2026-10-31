@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const image = absolute(resolveImageUrl(v.model_image_cdn || v.model_image));
 
   return {
-    title,
+    title: `${title} | Diecast Police Museum`,
     description: describe(v),
     alternates: { canonical: url },
     openGraph: {
