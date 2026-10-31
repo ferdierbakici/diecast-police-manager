@@ -26,7 +26,7 @@ function getPage(raw: string | undefined) {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const page = getPage((await searchParams).page);
   return {
-    title: page > 1 ? `All models – page ${page}` : "All models",
+    title: page > 1 ? `All models – page ${page} | Diecast Police Museum` : "All models | Diecast Police Museum",
     description:
       "Browse every diecast police car, fire truck, ambulance and other emergency vehicle model in the Diecast Police Museum archive.",
     alternates: { canonical: page > 1 ? `${SITE_URL}/models?page=${page}` : `${SITE_URL}/models` },
